@@ -1,8 +1,10 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from utils import send_msg, get_msg, script_args
 from config import *
+from log_config import log
 
 
+@log
 def presence_response(presence_message):
     """
     Формирование ответа клиенту
@@ -22,6 +24,7 @@ def presence_response(presence_message):
         return {RESPONSE: 400, ERROR: 'Не верный запрос'}
 
 
+@log
 def jim_server(addr, port, backlog=5, timeout=5):
     """
     Сервер
@@ -49,8 +52,8 @@ def jim_server(addr, port, backlog=5, timeout=5):
 
                 response = presence_response(data)  # проверить присутствие
                 send_msg(conn, response)
-            except:
-                pass
+            except Exception as e:
+                print(e)
             finally:
                 conn.close()
     finally:

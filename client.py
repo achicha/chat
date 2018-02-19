@@ -1,8 +1,10 @@
 import socket
 from datetime import datetime as dt
 from utils import send_msg, get_msg, script_args
+from log_config import log
 
 
+@log
 def jim_client(addr, port):
     """
     Клиент
@@ -32,8 +34,8 @@ def jim_client(addr, port):
         # получаем ответ от сервера
         data = get_msg(conn)
         print(data)
-    except:
-        pass
+    except Exception as e:
+        print(e)
     finally:
         conn.close()
 

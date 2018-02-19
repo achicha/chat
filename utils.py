@@ -57,14 +57,13 @@ def get_msg(sock):
     :param sock: сокет
     :return: словарь ответа
     """
-    # Получаем байты
-    bresp = sock.recv(1024)
+    bresp = sock.recv(1024)                     # Получаем байты
     resp = bytes_to_dict(bresp)                 # переводим байты в словарь
     return resp
 
 
 def script_args():
-    # Получаем аргументы скрипта
+    """Получаем аргументы скрипта"""
     try:
         addr = sys.argv[1]
     except IndexError:
