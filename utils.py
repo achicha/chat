@@ -25,19 +25,24 @@ def bytes_to_dict(msg_bytes):
     :return: словарь сообщения
     """
     # Если переданы байты
-    if isinstance(msg_bytes, bytes):
-        jmessage = msg_bytes.decode(ENCODING)   # Декодируем
-        message = json.loads(jmessage)          # Из json делаем словарь
-        # Если там был словарь
-        if isinstance(message, dict):
-            # Возвращаем сообщение
-            return message
+    try:
+        if isinstance(msg_bytes, bytes):
+
+            jmessage = msg_bytes.decode(ENCODING)   # Декодируем
+            message = json.loads(jmessage)          # Из json делаем словарь
+
+            # Если там был словарь
+            if isinstance(message, dict):
+                # Возвращаем сообщение
+                return message
+            else:
+                # Нам прислали неверный тип
+                raise TypeError
         else:
-            # Нам прислали неверный тип
+            # Передан неверный тип
             raise TypeError
-    else:
-        # Передан неверный тип
-        raise TypeError
+    except Exception as e:
+        print(e)
 
 
 def send_msg(sock, msg):
@@ -57,7 +62,7 @@ def get_msg(sock):
     :param sock: сокет
     :return: словарь ответа
     """
-    bresp = sock.recv(1024)                     # Получаем байты
+    bresp = sock.recv(8192)                     # Получаем байты
     resp = bytes_to_dict(bresp)                 # переводим байты в словарь
     return resp
 
