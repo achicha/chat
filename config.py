@@ -9,6 +9,7 @@ ERROR = 'error'
 
 # Значения
 PRESENCE = 'presence'
+MESSAGE = 'msg'
 
 # Коды ответов (будут дополняться)
 BASIC_NOTICE = 100
@@ -21,5 +22,5 @@ SERVER_ERROR = 500
 RESPONSE_CODES = (BASIC_NOTICE, OK, ACCEPTED, WRONG_REQUEST, SERVER_ERROR)
 
 
-PORT = 14906         # port. ибо достали зомби процессы :)
+PORT = 14908         # port. ибо достали зомби процессы :)
 ENCODING = 'utf-8'   # Кодировка

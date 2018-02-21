@@ -7,7 +7,7 @@ def test_presence_response():
     assert presence_response({'one': 'two', 'time': time.time()}) == {'response': 400, 'error': 'Не верный запрос'}
     # Нету ключа time
     assert presence_response({'action': 'presence'}) == {'response': 400, 'error': 'Не верный запрос'}
-    # Ключ не presence
+    # Ключ не presence_data
     assert presence_response({'action': 'test_action', 'time': 1000.10}) == {'response': 400,
                                                                              'error': 'Не верный запрос'}
     # Кривое время
