@@ -15,6 +15,7 @@ coverage/
 *.py[cod]
 *.pyo
 .ipynb_checkpoints/
+.pytest_cache/
 
 env/
 venv/

@@ -78,7 +78,11 @@ class ClientMessages:
                     .filter(Client.username == client_username).all()
         return 'Client {} does not exists'.format(client_username)
 
-    def add_client_history(self, client_username, ip_addr):
+    def get_all_clients(self):
+        """Получение списка всех зарегистрированных пользователей"""
+        return self.dal.session.query(Client).all()
+
+    def add_client_history(self, client_username, ip_addr='8.8.8.8'):
         """добавление истории клиента"""
         client = self.get_client_by_username(client_username)
         if client:
