@@ -25,8 +25,7 @@ class LoginWindow(QtWidgets.QDialog):
         if self.username:
             # тут можно сделать проверку на логин\пароль
             self.accept()
-            print(self.username)
-            print('login pressed')
+            print('{} logged in'.format(self.username))
         else:
             QtWidgets.QMessageBox.warning(self, 'Error', 'Bad user or password')
 
@@ -134,7 +133,7 @@ class ChatWindow(QtWidgets.QMainWindow):
         contact_msgs = [c for c in self.cm.get_client_messages(self.contact_username) if c.contact.username == self.username]
         msgs = sorted(client_msgs + contact_msgs, key=lambda x: x.time)  # all messages between client and contact
 
-        for msg in msgs[:20]:  # show last 20 messages
+        for msg in msgs[-50:]:  # show last 50 messages
             sender = msg.client.username
             if msg.client.username == self.username:
                 sender = 'me'
