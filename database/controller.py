@@ -1,6 +1,8 @@
+from datetime import datetime as dt
+from sqlalchemy.exc import IntegrityError
+
 from database.db_connector import DataAccessLayer
 from database.models import Client, History, Messages, Contacts
-from sqlalchemy.exc import IntegrityError
 
 
 class ClientMessages:
@@ -107,7 +109,7 @@ class ClientMessages:
         client = self.get_client_by_username(client_username)
         contact = self.get_client_by_username(contact_username)
         if client and contact:
-            new_msg = Messages(client_id=client.id, contact_id=contact.id, message=text_msg)
+            new_msg = Messages(client_id=client.id, contact_id=contact.id, message=text_msg, time=dt.now())
             try:
                 self.dal.session.add(new_msg)
                 self.dal.session.commit()
