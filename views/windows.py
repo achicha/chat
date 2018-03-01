@@ -37,6 +37,8 @@ class ContactsWindow(QtWidgets.QMainWindow):
 
         self.ui = contacts_ui_class()
         self.ui.setupUi(self)
+        self.ui.actionExit.triggered.connect(self.actionExit)
+
         self.cm = ClientMessages(db_path, CBase, echo=False)
         self.username = user_name
         self.after_start()
@@ -96,6 +98,10 @@ class ContactsWindow(QtWidgets.QMainWindow):
         chat_wnd = ChatWindow(self)
         chat_wnd.show()
 
+    def actionExit(self):
+        print('exit')
+        self.close()
+
 
 class ChatWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -152,6 +158,8 @@ class ServerMonitorWindow(QtWidgets.QMainWindow):
 
         self.ui = server_ui_class()
         self.ui.setupUi(self)
+        self.ui.refresh_action.triggered.connect(self.refresh_action)
+
         self.cm = ClientMessages(db_path, CBase, echo=False)
         self.after_start()
 
@@ -175,3 +183,10 @@ class ServerMonitorWindow(QtWidgets.QMainWindow):
         selected_client = self.ui.clients_list.currentItem().text()
         self.update_history_messages(selected_client)
         self.ui.tabWidgetClients.setCurrentIndex(1)  # set history tab active
+
+    def refresh_action(self):
+        """refresh from menu
+        QAction.triggered only work with direct connect() method,
+        otherwise it will be triggered twice."""
+        print('refresh')
+        self.update_clients()

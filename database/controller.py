@@ -70,9 +70,6 @@ class ClientMessages:
         """Получение контактов клиента"""
         client = self.get_client_by_username(client_username)
         if client:
-            # todo return contacts from Client table
-            # return self.dal.session.query(Contacts)\
-            #     .filter(Contacts.client.username == client_username).all()
             return self.dal.session.query(Contacts)\
                     .join(Client, Contacts.client_id == Client.id)\
                     .filter(Client.username == client_username).all()
