@@ -2,10 +2,10 @@ import asyncio, json, argparse
 from sys import stdout
 
 from Messages import JimRequestMessage
-from abase import MyMixin
+from abase import ConvertMixin
 
 
-class ChatClientProtocol(asyncio.Protocol, MyMixin):
+class ChatClientProtocol(asyncio.Protocol, ConvertMixin):
     def __init__(self, loop, user, **kwargs):
         self.user = user
         self.jim = JimRequestMessage()

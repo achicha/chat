@@ -53,13 +53,13 @@ class ContactsWindow(QtWidgets.QMainWindow):
 
     def after_start(self):
         """do appropriate things after starting the App"""
-
-        if not self.cm.get_client_by_username(self.username):
-            self.cm.add_client(self.username)  # add new client
-        else:
-            self.update_contacts(self.username)  # update list
-        # add client's history row
-        self.cm.add_client_history(self.username)
+        pass
+        # if not self.cm.get_client_by_username(self.username):
+        #     self.cm.add_client(self.username)  # add new client
+        # else:
+        #     self.update_contacts(self.username)  # update list
+        # # add client's history row
+        # self.cm.add_client_history(self.username)
 
     def update_contacts(self, client_username):
         """обновление контакт листа"""

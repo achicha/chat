@@ -1,9 +1,11 @@
 import json
 import sys
 from config import ENCODING, PORT
+from database.controller import ClientMessages
+from database.models import CBase
 
 
-class MyMixin:
+class ConvertMixin:
     def _dict_to_bytes(self, msg_dict):
         """
         Преобразование словаря в байты
@@ -37,3 +39,38 @@ class MyMixin:
                 raise TypeError             # Нам прислали неверный тип
         else:
             raise TypeError                 # Передан неверный тип
+
+
+class DbInterfaceMixin:
+    def __init__(self, db_path):
+        self._cm = ClientMessages(db_path, CBase, echo=False)  # init DB
+
+    def add_client(self, username, info=None):
+        return self._cm.add_client(username, info)
+
+    def get_client_by_username(self, username):
+        return self._cm.get_client_by_username(username)
+
+    def add_contact(self, client_username, contact_username):
+        return self._cm.add_contact(client_username, contact_username)
+
+    def del_contact(self, client_username, contact_username):
+        return self._cm.del_contact(client_username, contact_username)
+
+    def get_contacts(self, client_username):
+        return self._cm.get_contacts(client_username)
+
+    def get_all_clients(self):
+        return self._cm.get_all_clients()
+
+    def add_client_history(self, client_username, ip_addr='8.8.8.8'):
+        return self._cm.add_client_history(client_username, ip_addr)
+
+    def get_client_history(self, client_username):
+        return self._cm.get_client_history(client_username)
+
+    def add_client_message(self, client_username, contact_username, text_msg):
+        return self._cm.add_client_message(client_username, contact_username, text_msg)
+
+    def get_client_messages(self, client_username):
+        return self._cm.get_client_messages(client_username)
