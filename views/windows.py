@@ -152,8 +152,10 @@ class ChatWindow(QtWidgets.QMainWindow):
 
 
 class ServerMonitorWindow(QtWidgets.QMainWindow):
-    def __init__(self, db_path, parent=None):
+    def __init__(self, parsed_args, db_path, server_instance, parent=None):
         super().__init__(parent)
+        self.server_instance = server_instance
+        self.parsed_args = parsed_args
 
         self.ui = server_ui_class()
         self.ui.setupUi(self)
@@ -164,17 +166,19 @@ class ServerMonitorWindow(QtWidgets.QMainWindow):
 
     def after_start(self):
         """do appropriate things after starting the App"""
+        #self.server_app = GuiApp(self.parsed_args, self.db_path)
+        #self.server_app.main()
         self.update_clients()
 
     def update_clients(self):
         """обновление контакт листа"""
-        contacts = self.cm.get_all_clients()
+        contacts = self.server_instance.get_all_clients()
         self.ui.clients_list.clear()
         self.ui.clients_list.addItems([contact.username for contact in contacts])
 
     def update_history_messages(self, username):
         self.ui.msg_history_list.clear()
-        msgs = self.cm.get_client_history(username)
+        msgs = self.server_instance.get_client_history(username)
         _resp = [m.time.strftime("%Y-%m-%d %H:%M:%S") + '_' + m.ip_addr + '_' + m.client.username for m in msgs]
         self.ui.msg_history_list.addItems(_resp)
 

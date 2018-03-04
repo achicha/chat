@@ -1,13 +1,8 @@
 import asyncio
-import json
 import argparse
-from datetime import datetime
 
 from Messages import JimRequestMessage
 from abase import ConvertMixin, DbInterfaceMixin
-
-from database.controller import ClientMessages
-from database.models import CBase
 from config import DB_PATH
 
 
@@ -84,6 +79,7 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                     self.transport.write(self._dict_to_bytes(resp_msg))
             else:
                 # chat
+                print(_data)
                 if _data['from']:
                     # send msg to sender's chat
                     _data['message'] = 'Me: ' + _data['message']
@@ -97,35 +93,43 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             self.transport.write(self._dict_to_bytes(resp_msg))
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Server settings")
-    parser.add_argument("--addr", default="127.0.0.1", type=str)
-    parser.add_argument("--port", default=50000, type=int)
-    args = vars(parser.parse_args())
-    return args
+class ConsoleApp:
+    def __init__(self, parsed_args, db_path):
+        self.args = parsed_args
+        self.db_path = db_path
+        self.ins = None
 
+    def main(self):
+        connections = dict()
+        users = dict()
+        loop = asyncio.get_event_loop()
 
-def main():
-    args = parse_args()
-    connections = dict()
-    users = dict()
-    loop = asyncio.get_event_loop()
+        # Each client will create a new protocol instance
+        self.ins = ChatServerProtocol(self.db_path, connections, users)
 
-    # Each client will create a new protocol instance
-    coro = loop.create_server(lambda: ChatServerProtocol(DB_PATH, connections, users), args["addr"], args["port"])
-    server = loop.run_until_complete(coro)
+        coro = loop.create_server(lambda: self.ins, self.args["addr"], self.args["port"])
+        server = loop.run_until_complete(coro)
 
-    # Serve requests until Ctrl+C
-    print('Serving on {}:{}'.format(*server.sockets[0].getsockname()))
-    try:
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
+        # Serve requests until Ctrl+C
+        print('Serving on {}:{}'.format(*server.sockets[0].getsockname()))
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            pass
 
-    server.close()
-    loop.run_until_complete(server.wait_closed())
-    loop.close()
+        server.close()
+        loop.run_until_complete(server.wait_closed())
+        loop.close()
 
 
 if __name__ == "__main__":
-    main()
+    def parse_args():
+        parser = argparse.ArgumentParser(description="Server settings")
+        parser.add_argument("--addr", default="127.0.0.1", type=str)
+        parser.add_argument("--port", default=50000, type=int)
+        args = vars(parser.parse_args())
+        return args
+
+
+    app = ConsoleApp(parse_args(), DB_PATH)
+    app.main()

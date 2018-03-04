@@ -72,16 +72,12 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin):
     def stdoutput(self, data):
         """print in terminal
         data -> dict"""
-        # if self.last_message.strip() == data.strip():
-        #     print(data)
-        #     return  # Unclouds stdout with duplicate messages (sent and received)
-        # else:
         stdout.write(str(data))
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Client settings")
-    parser.add_argument("--user", default="Userb", type=str)
+    parser.add_argument("--user", default="user_1", type=str)
     parser.add_argument("--addr", default="127.0.0.1", type=str)
     parser.add_argument("--port", default=50000, type=int)
     parser.add_argument("--gui", default=True, type=bool)
@@ -107,4 +103,3 @@ def main():
 
 if __name__ == "__main__":
    main()
-
