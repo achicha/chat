@@ -93,9 +93,9 @@ def main():
     server = loop.run_until_complete(coro)
 
     if args["gui"]:
-        asyncio.async(_client.getmsgs(loop))
+        asyncio.ensure_future(_client.getmsgs(loop))
     else:
-        asyncio.async(_client.getgui(loop))
+        asyncio.ensure_future(_client.getgui(loop))
 
     loop.run_forever()
     loop.close()
