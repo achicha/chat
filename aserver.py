@@ -59,8 +59,8 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         if _data:
             try:
                 if _data['from']:
-                    # chat
-                    print(_data)
+                    # save msg to DB history messages
+                    self._cm.add_client_message(_data['from'], _data['to'], _data['message'])
                     # send msg to sender's chat
                     _data['message'] = 'Me: ' + _data['message']
                     self.users[_data['from']]['transport'].write(self._dict_to_bytes(_data))
