@@ -2,31 +2,36 @@
 import argparse
 import asyncio
 import sys
-import os
 
 from PyQt5 import Qt, QtWidgets
 
-from aclient import ChatClientProtocol
+from depricated.aclient import ChatClientProtocol
 from views.windows import LoginWindow, ContactsWindow
-from config import DB_PATH
-from database.controller import ClientMessages
-from database.models import CBase
+from config import DB_PATH, PORT
 from quamash import QEventLoop
 
-# # create Application
-# app = Qt.QApplication(sys.argv)
-#
-# # login into account
-# login_wnd = LoginWindow()
-#
-# if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
-#     # show user's contacts if login was correct
-#     contacts_wnd = ContactsWindow(db_path=DB_PATH, user_name=login_wnd.username)
-#
-#     #cm = ClientMessages(db_path, CBase, echo=False)
-#
-#     contacts_wnd.show()
-#     sys.exit(app.exec_())
+
+class ConsoleClientApp:
+    """Console Client"""
+
+    def __init__(self, parsed_args, db_path):
+        self.args = parsed_args
+        self.db_path = db_path
+        self.ins = None
+
+    def main(self):
+        loop = asyncio.get_event_loop()
+        _client = ChatClientProtocol(db_path=self.db_path, loop=loop, user=self.args["user"])
+        coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
+        server = loop.run_until_complete(coro)
+
+        # Serve requests until Ctrl+C
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            loop.close()
+
+        loop.close()
 
 
 class GuiClientApp:
@@ -59,11 +64,8 @@ class GuiClientApp:
                 coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
                 server = loop.run_until_complete(coro)
 
-                # GUI or Console client
-                if self.args["gui"]:
-                    asyncio.ensure_future(_client.getmsgs(loop))
-                else:
-                    asyncio.ensure_future(_client.getgui(loop))
+                # start GUI client
+                asyncio.ensure_future(_client.getmsgs(loop))
 
                 # Serve requests until Ctrl+C
                 try:
@@ -79,11 +81,18 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Client settings")
     parser.add_argument("--user", default="user_2", type=str)
     parser.add_argument("--addr", default="127.0.0.1", type=str)
-    parser.add_argument("--port", default=50000, type=int)
-    parser.add_argument("--gui", default=True, type=bool)
-    args = vars(parser.parse_args())
-    return args
+    parser.add_argument("--port", default=PORT, type=int)
+    parser.add_argument('--nogui', action='store_true')
+    return vars(parser.parse_args())
 
 
-a = GuiClientApp(parse_args(), DB_PATH)
-a.main()
+args = parse_args()
+
+if args['nogui']:
+    # start consoles server
+    a = ConsoleClientApp(args, DB_PATH)
+    a.main()
+else:
+    # start GUI client
+    a = GuiClientApp(args, DB_PATH)
+    a.main()

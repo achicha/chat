@@ -2,7 +2,7 @@ import asyncio
 import argparse
 
 from Messages import JimRequestMessage
-from abase import ConvertMixin, DbInterfaceMixin
+from mixins import ConvertMixin, DbInterfaceMixin
 from config import DB_PATH
 
 

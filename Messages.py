@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from BaseJimMessage import BaseJimMessage
+from depricated.BaseJimMessage import BaseJimMessage
 from config import *
 
 
