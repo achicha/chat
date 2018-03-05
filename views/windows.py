@@ -147,8 +147,9 @@ class ChatWindow(QtWidgets.QMainWindow):
     def on_send_btn_pressed(self):
         """записываем сообщение в БД"""
         msg = self.ui.send_text.text()
-        print('1', msg)
+
         if msg:
+            print('from: {}, to: {}, Msg: {}'.format(self.username, self.contact_username, msg))
             self.server_instance.add_client_message(self.username, self.contact_username, msg)   # add msg to DB
             self.update_chat()
             self.ui.send_text.clear()

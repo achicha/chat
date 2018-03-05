@@ -35,7 +35,6 @@ class GuiClientApp:
         self.args = parsed_args
         self.db_path = db_path
         self.ins = None
-        self.user = self.args['user']
 
     def main(self):
 
@@ -44,13 +43,14 @@ class GuiClientApp:
         loop = QEventLoop(app)
         asyncio.set_event_loop(loop)  # NEW must set the event loop
 
-        # Each client will create a new protocol instance
-        _client = ChatClientProtocol(self.db_path, loop, self.user)
-
         # login into account
         login_wnd = LoginWindow()
         if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
 
+            # Each client will create a new protocol instance
+            _client = ChatClientProtocol(self.db_path, loop, login_wnd.username)
+
+            # create Contacts window
             wnd = ContactsWindow(server_instance=_client, user_name=login_wnd.username)
             wnd.show()
 
@@ -59,6 +59,7 @@ class GuiClientApp:
                 coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
                 server = loop.run_until_complete(coro)
 
+                # GUI or Console client
                 if self.args["gui"]:
                     asyncio.ensure_future(_client.getmsgs(loop))
                 else:
