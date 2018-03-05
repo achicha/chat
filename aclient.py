@@ -2,17 +2,19 @@ import asyncio, json, argparse
 from sys import stdout
 
 from Messages import JimRequestMessage
-from abase import ConvertMixin
+from abase import ConvertMixin, DbInterfaceMixin
 
 
-class ChatClientProtocol(asyncio.Protocol, ConvertMixin):
-    def __init__(self, loop, user, **kwargs):
+class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
+    def __init__(self, db_path, loop, user, **kwargs):
+        super().__init__(db_path)
         self.user = user
         self.jim = JimRequestMessage()
 
         self.conn_is_open = False
         self.loop = loop
-        self.last_message = ""
+        self.sockname = None
+        self.transport = None
 
     def connection_made(self, transport):
         """ Called when connection is initiated """
@@ -78,7 +80,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Client settings")
-    parser.add_argument("--user", default="user_3", type=str)
+    parser.add_argument("--user", default="user_2", type=str)
     parser.add_argument("--addr", default="127.0.0.1", type=str)
     parser.add_argument("--port", default=50000, type=int)
     parser.add_argument("--gui", default=True, type=bool)

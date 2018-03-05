@@ -30,7 +30,7 @@ from aserver import ChatServerProtocol
 from views.windows import ServerMonitorWindow
 
 
-class GuiApp:
+class GuiServerApp:
     def __init__(self, parsed_args, db_path):
         self.args = parsed_args
         self.db_path = db_path
@@ -75,6 +75,6 @@ def parse_args():
     return args
 
 
-a = GuiApp(parse_args(), DB_PATH)
+a = GuiServerApp(parse_args(), DB_PATH)
 a.main()
 
