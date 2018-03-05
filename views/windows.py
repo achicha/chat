@@ -31,14 +31,14 @@ class LoginWindow(QtWidgets.QDialog):
 
 
 class ContactsWindow(QtWidgets.QMainWindow):
-    def __init__(self, db_path, user_name, parent=None):
+    def __init__(self, server_instance, user_name, parent=None):
         super().__init__(parent)
+        self.server_instance = server_instance
 
         self.ui = contacts_ui_class()
         self.ui.setupUi(self)
         self.ui.actionExit.triggered.connect(self.actionExit)
 
-        self.cm = ClientMessages(db_path, CBase, echo=False)
         self.username = user_name
         self.after_start()
 
@@ -53,7 +53,8 @@ class ContactsWindow(QtWidgets.QMainWindow):
 
     def after_start(self):
         """do appropriate things after starting the App"""
-        pass
+        self.update_contacts(self.username)  # update list
+
         # if not self.cm.get_client_by_username(self.username):
         #     self.cm.add_client(self.username)  # add new client
         # else:
@@ -63,7 +64,7 @@ class ContactsWindow(QtWidgets.QMainWindow):
 
     def update_contacts(self, client_username):
         """обновление контакт листа"""
-        contacts = self.cm.get_contacts(client_username)
+        contacts = self.server_instance.get_contacts(client_username)
         self.ui.all_contacts.clear()
         self.ui.all_contacts.addItems([contact.contact.username for contact in contacts])
 
@@ -71,7 +72,7 @@ class ContactsWindow(QtWidgets.QMainWindow):
         contact_username = self.ui.new_contact_name.text()
 
         if contact_username:
-            _resp = self.cm.add_contact(self.username, contact_username)
+            _resp = self.server_instance.add_contact(self.username, contact_username)
             if not _resp:
                 # если контакт успешно добавлен
                 self.update_contacts(self.username)
@@ -85,7 +86,7 @@ class ContactsWindow(QtWidgets.QMainWindow):
         except AttributeError:
             print('wrong contact')
 
-        _resp = self.cm.del_contact(self.username, selected_contact)
+        _resp = self.server_instance.del_contact(self.username, selected_contact)
 
         if not _resp:
             # контакт успешно удален
@@ -112,7 +113,7 @@ class ChatWindow(QtWidgets.QMainWindow):
         self.parent_window = parent   # bind parent's window attributes
         self.contact_username = self.parent_window.ui.all_contacts.currentItem().text()
         self.username = self.parent_window.username
-        self.cm = self.parent_window.cm
+        self.server_instance = self.parent_window.server_instance
         self.update_chat()
 
     def keyPressEvent(self, event):
@@ -129,8 +130,10 @@ class ChatWindow(QtWidgets.QMainWindow):
     def update_chat(self):
         """получаем все новые сообщения из БД"""
         self.ui.chat_window.clear()
-        client_msgs = [c for c in self.cm.get_client_messages(self.username) if c.contact.username == self.contact_username]
-        contact_msgs = [c for c in self.cm.get_client_messages(self.contact_username) if c.contact.username == self.username]
+        client_msgs = [c for c in self.server_instance.get_client_messages(self.username)
+                       if c.contact.username == self.contact_username]
+        contact_msgs = [c for c in self.server_instance.get_client_messages(self.contact_username)
+                        if c.contact.username == self.username]
         msgs = sorted(client_msgs + contact_msgs, key=lambda x: x.time)  # all messages between client and contact
 
         for msg in msgs[-50:]:  # show last 50 messages
@@ -146,7 +149,7 @@ class ChatWindow(QtWidgets.QMainWindow):
         msg = self.ui.send_text.text()
         print('1', msg)
         if msg:
-            self.cm.add_client_message(self.username, self.contact_username, msg)   # add msg to DB
+            self.server_instance.add_client_message(self.username, self.contact_username, msg)   # add msg to DB
             self.update_chat()
             self.ui.send_text.clear()
 

@@ -51,7 +51,7 @@ class GuiClientApp:
         login_wnd = LoginWindow()
         if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
 
-            wnd = ContactsWindow(db_path=DB_PATH, user_name=login_wnd.username)
+            wnd = ContactsWindow(server_instance=_client, user_name=login_wnd.username)
             wnd.show()
 
             with loop:
