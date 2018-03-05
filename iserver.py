@@ -15,6 +15,8 @@
 #
 # server_wnd.show()
 # sys.exit(app.exec_())
+
+
 import argparse
 import asyncio
 import sys
@@ -63,13 +65,6 @@ class GuiApp:
             server.close()
             loop.run_until_complete(server.wait_closed())
             loop.close()
-
-
-class ServerWindow(QtWidgets.QMainWindow):
-    def __init__(self,  parent=None):
-        super().__init__(parent)
-        self.ui = server_ui_class()
-        self.ui.setupUi(self)
 
 
 def parse_args():

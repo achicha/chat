@@ -19,7 +19,8 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin):
         self.sockname = transport.get_extra_info("sockname")
         self.transport = transport
         self.transport.write(self._dict_to_bytes(self.jim.presence(self.user,
-                                                                   status="Connected from {0}:{1}".format(*self.sockname))))
+                                                                   status="Connected from {0}:{1}".format(
+                                                                       *self.sockname))))
         self.conn_is_open = True
 
     def connection_lost(self, exc):
@@ -32,7 +33,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin):
         if data:
             msg = self._bytes_to_dict(data)
             print(msg)
-            #self.output(str(msg))
+            # self.output(str(msg))
 
     def send(self, to_user=None, content='basic text'):
         """received dict, return bytes"""
@@ -46,8 +47,8 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin):
             self.transport.write(msg)
 
     async def getmsgs(self, loop):
-        #self.output = self.stdoutput
-        #self.output("Connected to {0}:{1}\n".format(*self.sockname))
+        # self.output = self.stdoutput
+        # self.output("Connected to {0}:{1}\n".format(*self.sockname))
         while True:
             content = await loop.run_in_executor(None, input, "{}: ".format(self.user))  # Get stdout input forever
             self.send(content=content)
@@ -77,7 +78,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Client settings")
-    parser.add_argument("--user", default="user_1", type=str)
+    parser.add_argument("--user", default="user_3", type=str)
     parser.add_argument("--addr", default="127.0.0.1", type=str)
     parser.add_argument("--port", default=50000, type=int)
     parser.add_argument("--gui", default=True, type=bool)
@@ -102,4 +103,4 @@ def main():
 
 
 if __name__ == "__main__":
-   main()
+    main()
