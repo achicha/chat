@@ -152,7 +152,7 @@ class ChatWindow(QtWidgets.QMainWindow):
 
 
 class ServerMonitorWindow(QtWidgets.QMainWindow):
-    def __init__(self, parsed_args, db_path, server_instance, parent=None):
+    def __init__(self, parsed_args,  server_instance, parent=None):
         super().__init__(parent)
         self.server_instance = server_instance
         self.parsed_args = parsed_args
@@ -160,8 +160,6 @@ class ServerMonitorWindow(QtWidgets.QMainWindow):
         self.ui = server_ui_class()
         self.ui.setupUi(self)
         self.ui.refresh_action.triggered.connect(self.refresh_action)
-
-        self.cm = ClientMessages(db_path, CBase, echo=False)
         self.after_start()
 
     def after_start(self):

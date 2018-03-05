@@ -48,7 +48,7 @@ class GuiApp:
         loop = QEventLoop(app)
         asyncio.set_event_loop(loop)  # NEW must set the event loop
 
-        wnd = ServerMonitorWindow(server_instance=self.ins, parsed_args=self.args, db_path=self.db_path)
+        wnd = ServerMonitorWindow(server_instance=self.ins, parsed_args=self.args)
         wnd.show()
 
         with loop:
