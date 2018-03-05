@@ -4,7 +4,7 @@ from random import random
 
 import time
 
-from Messages import JimRequestMessage, JimResponseMessage
+from protocols.messages_proto import JimRequestMessage, JimResponseMessage
 from config import PORT, OK
 from log_config import log
 

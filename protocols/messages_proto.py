@@ -1,9 +1,7 @@
 from datetime import datetime as dt
-from depricated.BaseJimMessage import BaseJimMessage
-from config import *
 
 
-class JimRequestMessage(BaseJimMessage):
+class JimRequestMessage:
     """Формирование запроса"""
 
     def presence(self, sender, status="Yep, I am here!"):
@@ -68,27 +66,3 @@ class JimRequestMessage(BaseJimMessage):
         #             ERROR: error}  # client msg
         return _data
 
-
-class JimResponseMessage(BaseJimMessage):
-    """Формирование ответа клиенту"""
-
-    def response(self, msg, code=None, error=None):
-        """
-        create response dictionary
-        :param msg: request message in bytes
-        :param code: http code
-        :param error: error text
-        :return: response dictionary
-        """
-        if ACTION not in msg:
-            return {RESPONSE: code or 400,
-                    ERROR: 'Не верный запрос. Action is not exist'}
-        if TIME not in msg or not isinstance(msg[TIME], (float, int)):
-            return {RESPONSE: code or 400,
-                    ERROR: 'Не верный запрос. Wrong time'}
-        if msg[ACTION] == PRESENCE:
-            return {RESPONSE: code or 200,
-                    ERROR: error}  # presence msg
-        if msg[ACTION] == MESSAGE:
-            return {RESPONSE: code or 200,
-                    ERROR: error}  # client msg

@@ -2,13 +2,14 @@
 import argparse
 import asyncio
 import sys
+
+from PyQt5 import Qt
 #from PyQt5.QtCore import QEventLoop
-from quamash import QEventLoop
-from PyQt5 import Qt, QtWidgets
+from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
 
 from config import DB_PATH, PORT
-from server_proto import ChatServerProtocol
-from views.windows import ServerMonitorWindow
+from protocols.server_proto import ChatServerProtocol
+from gui_views.windows import ServerMonitorWindow
 
 
 class ConsoleServerApp:

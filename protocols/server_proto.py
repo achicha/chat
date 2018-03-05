@@ -1,9 +1,7 @@
 import asyncio
-import argparse
 
-from Messages import JimRequestMessage
-from mixins import ConvertMixin, DbInterfaceMixin
-from config import DB_PATH
+from protocols.messages_proto import JimRequestMessage
+from protocols.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):

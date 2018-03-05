@@ -1,6 +1,6 @@
 import json
-import sys
-from config import ENCODING, PORT
+
+from config import ENCODING
 from database.controller import ClientMessages
 from database.models import CBase
 

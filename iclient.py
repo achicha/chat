@@ -4,11 +4,12 @@ import asyncio
 import sys
 
 from PyQt5 import Qt, QtWidgets
+#from PyQt5.QtCore import QEventLoop
+from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
 
-from depricated.aclient import ChatClientProtocol
-from views.windows import LoginWindow, ContactsWindow
+from protocols.client_proto import ChatClientProtocol
+from gui_views.windows import LoginWindow, ContactsWindow
 from config import DB_PATH, PORT
-from quamash import QEventLoop
 
 
 class ConsoleClientApp:

@@ -3,7 +3,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 import sys
 
 from config import PORT
-from Messages import JimResponseMessage
+from protocols.messages_proto import JimResponseMessage
 from log_config import log
 
 
