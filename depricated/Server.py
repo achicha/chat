@@ -30,7 +30,7 @@ class Server:
         """Чтение запросов из списка клиентов"""
 
         responses = {}  # Словарь ответов сервера вида {сокет: запрос}
-        # todo Проверяем, правильно ли составлен запрос convert to dict and back.
+        # Проверяем, правильно ли составлен запрос convert to dict and back.
         for sock in r_clients:
             try:
                 data = self.response.get(sock)

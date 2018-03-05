@@ -26,6 +26,7 @@ class ConsoleClientApp:
         coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
         server = loop.run_until_complete(coro)
 
+        asyncio.ensure_future(_client.getmsgs(loop))
         # Serve requests until Ctrl+C
         try:
             loop.run_forever()
@@ -57,7 +58,9 @@ class GuiClientApp:
             _client = ChatClientProtocol(self.db_path, loop, login_wnd.username)
 
             # create Contacts window
-            wnd = ContactsWindow(server_instance=_client, user_name=login_wnd.username)
+            wnd = ContactsWindow(client_instance=_client, user_name=login_wnd.username)
+            _client.gui_instance = wnd  # reference from protocol to GUI, for msg update
+
             wnd.show()
 
             with loop:

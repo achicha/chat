@@ -6,10 +6,11 @@ from protocols.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
-    def __init__(self, db_path, loop, user, **kwargs):
+    def __init__(self, db_path, loop, user, gui_instance=None, **kwargs):
         super().__init__(db_path)
         self.user = user
         self.jim = JimRequestMessage()
+        self.gui_instance = gui_instance
 
         self.conn_is_open = False
         self.loop = loop
@@ -36,6 +37,14 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             msg = self._bytes_to_dict(data)
             print(msg)
             # self.output(str(msg))
+            try:
+                if self.gui_instance and self.user == msg['to']:
+                    print('gui instance')
+                    # todo send to receiver GUI chat. чтото не работает
+                    print(self.gui_instance.chat_wnd)
+                    self.gui_instance.chat_wnd[self.user]()
+            except Exception as e:
+                print(e)
 
     def send(self, to_user=None, content='basic text'):
         """received dict, return bytes"""
