@@ -37,7 +37,7 @@ class ContactsWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.ui.actionExit.triggered.connect(self.actionExit)
 
-        self.chat_wnd = {}
+        self.chat_ins = None
         self.username = user_name
         self.after_start()
 
@@ -113,7 +113,7 @@ class ChatWindow(QtWidgets.QMainWindow):
         self.contact_username = self.parent_window.ui.all_contacts.currentItem().text()
         self.username = self.parent_window.username
         self.client_instance = self.parent_window.client_instance
-        self.parent_window.chat_wnd[self.contact_username] = self.update_chat
+        self.parent_window.chat_ins = self.update_chat
         self.update_chat()
 
     def keyPressEvent(self, event):

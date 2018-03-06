@@ -40,9 +40,8 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             try:
                 if self.gui_instance and self.user == msg['to']:
                     print('gui instance')
-                    # todo send to receiver GUI chat. чтото не работает
-                    print(self.gui_instance.chat_wnd)
-                    self.gui_instance.chat_wnd[self.user]()
+                    print(self.gui_instance.chat_ins)
+                    self.gui_instance.chat_ins()
             except Exception as e:
                 print(e)
 
