@@ -137,7 +137,7 @@ class ChatWindow(QtWidgets.QMainWindow):
                         if c.contact.username == self.username]
         msgs = sorted(client_msgs + contact_msgs, key=lambda x: x.time)  # all messages between client and contact
 
-        for msg in msgs[-50:]:  # show last 50 messages
+        for msg in msgs[-20:]:  # show last 20 messages
             sender = msg.client.username
             if msg.client.username == self.username:
                 sender = 'me'

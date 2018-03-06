@@ -16,6 +16,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         self.loop = loop
         self.sockname = None
         self.transport = None
+        self.output = None
 
     def connection_made(self, transport):
         """ Called when connection is initiated """
@@ -32,11 +33,14 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         self.loop.stop()
 
     def data_received(self, data):
-        """received bytes, return dict"""
+        """
+        Receive data from server and send output message to console/gui
+        :param data: json-like dict in bytes
+        :return:
+        """
         if data:
             msg = self._bytes_to_dict(data)
-            print(msg)
-            # self.output(str(msg))
+            self.output(msg)
             try:
                 if self.gui_instance and self.user == msg['to']:
                     print('gui instance')
@@ -46,7 +50,12 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 print(e)
 
     def send(self, to_user=None, content='basic text'):
-        """received dict, return bytes"""
+        """
+            Send json-like message
+        :param to_user:
+        :param content:
+        :return:
+        """
         if content:
             if not to_user:
                 to_user = self.user
@@ -56,13 +65,30 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             msg = self._dict_to_bytes(request)
             self.transport.write(msg)
 
-    async def getmsgs(self, loop):
-        # self.output = self.stdoutput
-        # self.output("Connected to {0}:{1}\n".format(*self.sockname))
+    async def get_from_console(self, loop):
+        """
+        Recieve messages from Console
+        :param loop:
+        :return:
+        """
+        while not self.conn_is_open:
+            pass
+        self.output = self.output_to_console
+        self.output("{2} connected to {0}:{1}\n".format(*self.sockname, self.user))
         while True:
-            content = await loop.run_in_executor(None, input, "{}: ".format(self.user))  # Get stdout input forever
+            content = await loop.run_in_executor(None, input, "{}: ".format(self.user))  # Get stdin/stdout forever
             self.send(content=content)
 
+    def output_to_console(self, data):
+        """
+            print output data to terminal
+        :param data: msg dictionary
+        :return:
+        """
+        stdout.write(str(data) + '\n')
+
+    async def get_from_gui(self, loop):
+        pass
     # async def getgui(self, loop):
     #     def executor():
     #         while not self.is_open:
@@ -79,8 +105,3 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
     # def tkoutput(self, data):
     #     stdout.write(data)
     #     #return self.gui.text1.insert(1.0, data)
-
-    def stdoutput(self, data):
-        """print in terminal
-        data -> dict"""
-        stdout.write(str(data))

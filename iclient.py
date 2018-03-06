@@ -26,7 +26,7 @@ class ConsoleClientApp:
         coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
         server = loop.run_until_complete(coro)
 
-        asyncio.ensure_future(_client.getmsgs(loop))
+        asyncio.ensure_future(_client.get_from_console(loop))
         # Serve requests until Ctrl+C
         try:
             loop.run_forever()
@@ -69,7 +69,7 @@ class GuiClientApp:
                 server = loop.run_until_complete(coro)
 
                 # start GUI client
-                asyncio.ensure_future(_client.getmsgs(loop))
+                asyncio.ensure_future(_client.get_from_console(loop))
 
                 # Serve requests until Ctrl+C
                 try:
