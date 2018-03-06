@@ -69,7 +69,8 @@ class GuiClientApp:
                 server = loop.run_until_complete(coro)
 
                 # start GUI client
-                asyncio.ensure_future(_client.get_from_console(loop))
+                #asyncio.ensure_future(_client.get_from_gui(loop))
+                _client.get_from_gui()
 
                 # Serve requests until Ctrl+C
                 try:

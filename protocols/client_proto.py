@@ -38,16 +38,13 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         :param data: json-like dict in bytes
         :return:
         """
-        if data:
-            msg = self._bytes_to_dict(data)
-            self.output(msg)
+        msg = self._bytes_to_dict(data)
+        if msg:
             try:
-                if self.gui_instance and self.user == msg['to']:
-                    print('gui instance')
-                    print(self.gui_instance.chat_ins)
-                    self.gui_instance.chat_ins()
+                if msg['from']:
+                    self.output(msg)
             except Exception as e:
-                print(e)
+                pass
 
     def send(self, to_user=None, content='basic text'):
         """
@@ -73,10 +70,12 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         """
         while not self.conn_is_open:
             pass
+
         self.output = self.output_to_console
         self.output("{2} connected to {0}:{1}\n".format(*self.sockname, self.user))
+
         while True:
-            content = await loop.run_in_executor(None, input, "{}: ".format(self.user))  # Get stdin/stdout forever
+            content = await loop.run_in_executor(None, input)#, "{}: ".format(self.user))  # Get stdin/stdout forever
             self.send(content=content)
 
     def output_to_console(self, data):
@@ -85,23 +84,28 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         :param data: msg dictionary
         :return:
         """
-        stdout.write(str(data) + '\n')
+        _data = data
+        try:
+            if _data['from'] == self.user:
+                _data['message'] = 'Me: ' + _data['message']
+            else:
+                _data['message'] = '{}: '.format(_data['from']) + _data['message']
+            stdout.write(str(_data['message']) + '\n')
+        except:
+            stdout.write(str(_data) + '\n')
 
-    async def get_from_gui(self, loop):
-        pass
-    # async def getgui(self, loop):
-    #     def executor():
-    #         while not self.is_open:
-    #             pass
-    #         #self.gui = Gui(None, self)
-    #         self.output = self.tkoutput  # Set client output to tk window
-    #         self.output("Connected to {0}:{1}\n".format(*self.sockname))
-    #         #self.gui.mainloop()
-    #         self.transport.close()  # If window closed, close connection
-    #         self.loop.stop()
-    #
-    #     await loop.run_in_executor(None, executor)  # Run GUI in executor for simultanity
-    #
-    # def tkoutput(self, data):
-    #     stdout.write(data)
-    #     #return self.gui.text1.insert(1.0, data)
+    def get_from_gui(self):
+        self.output = self.output_to_gui
+        #await loop.run_in_executor(None, self.output)  # Run GUI in executor
+
+    def output_to_gui(self, msg):
+        """
+         send update signal to GUI client
+        :type msg: message dictionary
+        :return:
+        """
+        try:
+            if self.gui_instance and self.user == msg['to']:
+                self.gui_instance.chat_ins()
+        except Exception as e:
+            print(e)

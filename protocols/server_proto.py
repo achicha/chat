@@ -56,18 +56,18 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
         if _data:
             try:
-                if _data['from']:
+                if _data['from']:  # send msg to sender's chat
                     print(_data)
                     # save msg to DB history messages
                     self._cm.add_client_message(_data['from'], _data['to'], _data['message'])
-                    # send msg to sender's chat
-                    _data['message'] = 'Me: ' + _data['message']
+
                     self.users[_data['from']]['transport'].write(self._dict_to_bytes(_data))
 
-                if _data['to'] and _data['from'] != _data['to']:
-                    # send msg to receiver's chat
-                    self.users[_data['to']]['transport'].write(self._dict_to_bytes(_data))
-                    print(_data['to'])
+                if _data['to'] and _data['from'] != _data['to']:  # send msg to receiver's chat
+                    try:
+                        self.users[_data['to']]['transport'].write(self._dict_to_bytes(_data))
+                    except KeyError:
+                        print('{} is not connected yet'.format(_data['to']))
 
             except Exception as e:
                 if _data['user']['account_name']:

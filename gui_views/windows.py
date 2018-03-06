@@ -54,13 +54,6 @@ class ContactsWindow(QtWidgets.QMainWindow):
         """do appropriate things after starting the App"""
         self.update_contacts(self.username)  # update list
 
-        # if not self.cm.get_client_by_username(self.username):
-        #     self.cm.add_client(self.username)  # add new client
-        # else:
-        #     self.update_contacts(self.username)  # update list
-        # # add client's history row
-        # self.cm.add_client_history(self.username)
-
     def update_contacts(self, client_username):
         """обновление контакт листа"""
         contacts = self.client_instance.get_contacts(client_username)
@@ -108,8 +101,10 @@ class ChatWindow(QtWidgets.QMainWindow):
 
         self.ui = chat_ui_class()
         self.ui.setupUi(self)
-
         self.parent_window = parent   # bind parent's window attributes
+        self.after_start()
+
+    def after_start(self):
         self.contact_username = self.parent_window.ui.all_contacts.currentItem().text()
         self.username = self.parent_window.username
         self.client_instance = self.parent_window.client_instance
@@ -129,7 +124,7 @@ class ChatWindow(QtWidgets.QMainWindow):
 
     def update_chat(self):
         """получаем все новые сообщения из БД"""
-        print('update chat for {}'.format(self.username))
+        #print('update chat for {}'.format(self.username))
         self.ui.chat_window.clear()
         client_msgs = [c for c in self.client_instance.get_client_messages(self.username)
                        if c.contact.username == self.contact_username]
@@ -146,7 +141,7 @@ class ChatWindow(QtWidgets.QMainWindow):
                                                                 sender, msg.message))
 
     def on_send_btn_pressed(self):
-        """записываем сообщение в БД"""
+        """After send button clicked, send message to the server and update chat window"""
         msg = self.ui.send_text.text()
 
         if msg:
@@ -171,8 +166,6 @@ class ServerMonitorWindow(QtWidgets.QMainWindow):
 
     def after_start(self):
         """do appropriate things after starting the App"""
-        #self.server_app = GuiApp(self.parsed_args, self.db_path)
-        #self.server_app.main()
         self.update_clients()
 
     def update_clients(self):
