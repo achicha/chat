@@ -1,10 +1,10 @@
 import time
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
-from gui_views.login_ui import Ui_Login_Dialog as login_ui_class
-from gui_views.contacts_ui import Ui_ContactsWindow as contacts_ui_class
-from gui_views.chat_ui import Ui_ChatMainWindow as chat_ui_class
-from gui_views.server_monitor_ui import Ui_ServerWindow as server_ui_class
+from gui_views.ui_core.login_ui import Ui_Login_Dialog as login_ui_class
+from gui_views.ui_core.contacts_ui import Ui_ContactsWindow as contacts_ui_class
+from gui_views.ui_core.chat_ui import Ui_ChatMainWindow as chat_ui_class
+from gui_views.ui_core.server_monitor_ui import Ui_ServerWindow as server_ui_class
 
 
 class LoginWindow(QtWidgets.QDialog):
