@@ -56,19 +56,24 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
         if _data:
             try:
-                if _data['from']:  # send msg to sender's chat
-                    print(_data)
-                    # save msg to DB history messages
-                    self._cm.add_client_message(_data['from'], _data['to'], _data['message'])
+                if _data['action'] == 'msg':
+                    if _data['from']:  # send msg to sender's chat
+                        print(_data)
+                        # save msg to DB history messages
+                        self._cm.add_client_message(_data['from'], _data['to'], _data['message'])
 
-                    self.users[_data['from']]['transport'].write(self._dict_to_bytes(_data))
+                        self.users[_data['from']]['transport'].write(self._dict_to_bytes(_data))
 
-                if _data['to'] and _data['from'] != _data['to']:  # send msg to receiver's chat
-                    try:
-                        self.users[_data['to']]['transport'].write(self._dict_to_bytes(_data))
-                    except KeyError:
-                        print('{} is not connected yet'.format(_data['to']))
-
+                    if _data['to'] and _data['from'] != _data['to']:  # send msg to receiver's chat
+                        try:
+                            self.users[_data['to']]['transport'].write(self._dict_to_bytes(_data))
+                        except KeyError:
+                            print('{} is not connected yet'.format(_data['to']))
+                elif _data['action'] == 'list':
+                    contacts = self.get_contacts(_data['from'])
+                    # todo send list request
+                    #self.users[_data['from']]['transport'].write()
+                    #[contact.contact.username for contact in contacts]
             except Exception as e:
                 if _data['user']['account_name']:
                     # when first message received
