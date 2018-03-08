@@ -39,9 +39,19 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
     def _login_required(self, username):
         """check user's credentials or add new user to DB"""
+        pass
+
+    def server_auth(self, username, password):
+        """
+         server authenticate
+        :param username:
+        :param password:
+        :return:
+        """
         # add user to DB if not exist
         if not self.get_client_by_username(username):
-            self.add_client(username)  # add new client
+            self.add_client(username, password)  # add new client
+
 
         # add client's history row
         self.add_client_history(username)
@@ -78,7 +88,6 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 elif _data['action'] == 'presence':  # received presence msg
                     if _data['user']['account_name']:
                         # add new user to temp variables
-                        print(_data['user']['account_name'], self.transport)
                         self.user = _data['user']['account_name']
                         self.connections[self.transport]['username'] = self.user
                         self.users[_data['user']['account_name']] = self.connections[self.transport]
@@ -92,6 +101,9 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                     else:
                         resp_msg = self.jim.response(code=500, error='wrong presence msg')
                         self.transport.write(self._dict_to_bytes(resp_msg))
+
+                elif _data['action'] == 'authenticate':
+                    pass
 
             except Exception as e:
                 resp_msg = self.jim.response(code=500, error=e)

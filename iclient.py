@@ -55,31 +55,35 @@ class GuiClientApp:
         if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
 
             # Each client will create a new protocol instance
-            _client = ChatClientProtocol(self.db_path, loop, login_wnd.username)
+            _client = ChatClientProtocol(self.db_path, loop, login_wnd.username, login_wnd.password)
 
-            # create Contacts window
-            wnd = ContactsWindow(client_instance=_client, user_name=login_wnd.username)
-            _client.gui_instance = wnd  # reference from protocol to GUI, for msg update
+            # auth
+            if _client.is_auth:
+                # create Contacts window
+                wnd = ContactsWindow(client_instance=_client, user_name=login_wnd.username)
+                _client.gui_instance = wnd  # reference from protocol to GUI, for msg update
 
-            wnd.show()
+                wnd.show()
 
-            with loop:
-                # connect to our server
-                coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
-                server = loop.run_until_complete(coro)
+                with loop:
+                    # connect to our server
+                    coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
+                    server = loop.run_until_complete(coro)
 
-                # start GUI client
-                #asyncio.ensure_future(_client.get_from_gui(loop))
-                _client.get_from_gui()
+                    # start GUI client
+                    #asyncio.ensure_future(_client.get_from_gui(loop))
+                    _client.get_from_gui()
 
-                # Serve requests until Ctrl+C
-                try:
-                    loop.run_forever()
-                except KeyboardInterrupt:
+                    # Serve requests until Ctrl+C
+                    try:
+                        loop.run_forever()
+                    except KeyboardInterrupt:
+                        loop.close()
+
+                    #loop.run_until_complete(server.wait_closed())
                     loop.close()
-
-                #loop.run_until_complete(server.wait_closed())
-                loop.close()
+            else:
+                print('wrong users credentials')
 
 
 def parse_args():

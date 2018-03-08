@@ -16,12 +16,12 @@ class ClientMessages:
         """закрыть сессию перед выходом"""
         self.dal.session.close()
 
-    def add_client(self, username, info=None):
+    def add_client(self, username, password, info=None):
         """Добавление клиента"""
         if self.get_client_by_username(username):
             return 'Username {} already exists'.format(username)
         else:
-            new_user = Client(username=username, info=info)
+            new_user = Client(username=username, password=password, info=info)
             self.dal.session.add(new_user)
             self.dal.session.commit()
             print('Client added: {}'.format(new_user))

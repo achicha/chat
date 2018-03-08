@@ -3,10 +3,27 @@ from datetime import datetime as dt
 
 class JimRequestMessage:
     """Формирование запроса"""
+    def auth(self, username, password):
+        """
+        Сообщение для авторизации пользователя на сервере
+        :param username:
+        :param password:
+        :return:
+        """
+        data = {
+            "action": "authenticate",
+            "time": dt.now().timestamp(),
+            "user": {
+                "account_name": username,
+                "password": password
+            }
+        }
+        return data
 
     def presence(self, sender, status="Yep, I am here!"):
         """
-        Сформировать ​​presence-сообщение
+        Сформировать ​​presence-сообщение присутствие.
+        Сервисное сообщение для извещения сервера о присутствии клиента​ ​ online;
         :return: Словарь сообщения
         """
         data = {
@@ -23,6 +40,7 @@ class JimRequestMessage:
     def request(self, sender, receiver='user1', text='some msg text'):
         """
         client -> client message
+        ​простое​ ​ сообщение​ ​ пользователю​ ​ или​ ​ в ​ ​ чат;
 
         :param receiver: account name. message to
         :param text: message text

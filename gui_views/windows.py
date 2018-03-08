@@ -5,12 +5,14 @@ from gui_views.ui_core.login_ui import Ui_Login_Dialog as login_ui_class
 from gui_views.ui_core.contacts_ui import Ui_ContactsWindow as contacts_ui_class
 from gui_views.ui_core.chat_ui import Ui_ChatMainWindow as chat_ui_class
 from gui_views.ui_core.server_monitor_ui import Ui_ServerWindow as server_ui_class
+# pyuic5 -x login.ui -o login_ui.py
 
 
 class LoginWindow(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.username = None
+        self.password = None
 
         self.ui = login_ui_class()
         self.ui.setupUi(self)
@@ -20,7 +22,8 @@ class LoginWindow(QtWidgets.QDialog):
         сахар для добавления слота: self.ui.login_btn.pressed.connect(self.press)
         """
         self.username = self.ui.username_text.text()
-        if self.username:
+        self.password = self.ui.password_text.text()
+        if self.username and self.password:
             # тут можно сделать проверку на логин\пароль
             self.accept()
             print('{} logged in'.format(self.username))
