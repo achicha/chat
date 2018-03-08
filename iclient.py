@@ -3,6 +3,7 @@ import argparse
 import asyncio
 import sys
 
+import time
 from PyQt5 import Qt, QtWidgets
 #from PyQt5.QtCore import QEventLoop
 from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
@@ -50,40 +51,47 @@ class GuiClientApp:
         loop = QEventLoop(app)
         asyncio.set_event_loop(loop)  # NEW must set the event loop
 
+        # Each client will create a new protocol instance
+        auth = []
+        _client = ChatClientProtocol(self.db_path, loop, authenticated=auth)
+
+        # create Contacts window
+        wnd = ContactsWindow(client_instance=_client)
+        _client.gui_instance = wnd  # reference from protocol to GUI, for msg update
+
         # login into account
         login_wnd = LoginWindow()
-        if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
+        #login_wnd.show()
+        #if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
+        #wnd.show()
+        login_wnd.exec_()
 
-            # Each client will create a new protocol instance
-            _client = ChatClientProtocol(self.db_path, loop, login_wnd.username, login_wnd.password)
+        with loop:
+            # connect to our server
+            coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
+            server = loop.run_until_complete(coro)
 
             # auth
-            if _client.is_auth:
-                # create Contacts window
-                wnd = ContactsWindow(client_instance=_client, user_name=login_wnd.username)
-                _client.gui_instance = wnd  # reference from protocol to GUI, for msg update
+            _client.user = login_wnd.username
+            _client.password = login_wnd.password
+            _client.send_auth(_client.user, login_wnd.password)
+            time.sleep(3)
 
-                wnd.show()
+            # start GUI client
+            wnd.show()
+            _client.get_from_gui()  #asyncio.ensure_future(_client.get_from_gui(loop))
 
-                with loop:
-                    # connect to our server
-                    coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
-                    server = loop.run_until_complete(coro)
+            # Serve requests until Ctrl+C
+            try:
+                loop.run_forever()
+            except KeyboardInterrupt:
+                loop.close()
 
-                    # start GUI client
-                    #asyncio.ensure_future(_client.get_from_gui(loop))
-                    _client.get_from_gui()
+            #loop.run_until_complete(server.wait_closed())
+            loop.close()
 
-                    # Serve requests until Ctrl+C
-                    try:
-                        loop.run_forever()
-                    except KeyboardInterrupt:
-                        loop.close()
-
-                    #loop.run_until_complete(server.wait_closed())
-                    loop.close()
-            else:
-                print('wrong users credentials')
+            # else:
+            #     print('wrong users credentials')
 
 
 def parse_args():

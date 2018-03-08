@@ -37,6 +37,23 @@ class JimRequestMessage:
         }
         return data
 
+    def probe(self, sender, status="Are you there?"):
+        """
+        Сформировать ​​presence-сообщение присутствие.
+        Сервисное сообщение для извещения сервера о присутствии клиента​ ​ online;
+        :return: Словарь сообщения
+        """
+        data = {
+            "action": "probe",
+            "time": dt.now().timestamp(),
+            "type": "status",
+            "user": {
+                "account_name": sender,
+                "status": status
+            }
+        }
+        return data
+
     def request(self, sender, receiver='user1', text='some msg text'):
         """
         client -> client message

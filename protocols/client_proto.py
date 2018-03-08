@@ -6,12 +6,14 @@ from protocols.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
-    def __init__(self, db_path, loop, username, password, gui_instance=None, **kwargs):
+    def __init__(self, db_path, loop, authenticated, username=None, password=None, gui_instance=None, **kwargs):
         super().__init__(db_path)
         self.user = username
         self.password = password
         self.jim = JimRequestMessage()
         self.gui_instance = gui_instance
+        self.authenticated = authenticated
+        self.last_msg = None
 
         self.conn_is_open = False
         self.loop = loop
@@ -23,9 +25,6 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         """ Called when connection is initiated """
         self.sockname = transport.get_extra_info("sockname")
         self.transport = transport
-        self.transport.write(self._dict_to_bytes(self.jim.presence(self.user,
-                                                                   status="Connected from {0}:{1}".format(
-                                                                       *self.sockname))))
         self.conn_is_open = True
 
     def connection_lost(self, exc):
@@ -40,14 +39,28 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         :return:
         """
         msg = self._bytes_to_dict(data)
+        print(msg)
         if msg:
             try:
-                if msg['from']:
-                    self.output(msg)
-            except Exception as e:
+                if msg['action'] == 'probe':
+                    self.authenticated = True
+                    # when server sent probe msg -> auth is complete
+                    self.transport.write(self._dict_to_bytes(self.jim.presence(self.user,
+                                                                               status="Connected from {0}:{1}".format(
+                                                                                   *self.sockname))))
                 if msg['action'] == 'quit':
                     self.conn_is_open = False
                     self.loop.stop()
+                if msg['response'] == 200:
+                    print('response 200')
+                if msg['from']:
+                    self.output(msg)
+            except Exception as e:
+                pass
+
+    def send_auth(self, user, password):
+        if user and password:
+            self.transport.write(self._dict_to_bytes(self.jim.auth(user, password)))
 
     def send(self, to_user=None, content='basic text'):
         """

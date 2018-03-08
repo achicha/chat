@@ -45,8 +45,8 @@ class DbInterfaceMixin:
     def __init__(self, db_path):
         self._cm = ClientMessages(db_path, CBase, echo=False)  # init DB
 
-    def add_client(self, username, password, info=None):
-        return self._cm.add_client(username, password, info)
+    def add_client(self, username, info=None):
+        return self._cm.add_client(username, info)
 
     def get_client_by_username(self, username):
         return self._cm.get_client_by_username(username)

@@ -102,9 +102,10 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 elif _data['action'] == 'presence':  # received presence msg
                     if _data['user']['account_name']:
                         # add new user to temp variables
-                        self.user = _data['user']['account_name']
-                        self.connections[self.transport]['username'] = self.user
-                        self.users[_data['user']['account_name']] = self.connections[self.transport]
+                        if _data['user']['account_name'] not in self.users:
+                            self.user = _data['user']['account_name']
+                            self.connections[self.transport]['username'] = self.user
+                            self.users[_data['user']['account_name']] = self.connections[self.transport]
 
                         # check user in DB
                         self._login_required(self.user)
@@ -117,7 +118,16 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                         self.transport.write(self._dict_to_bytes(resp_msg))
 
                 elif _data['action'] == 'authenticate':
+                    # todo complete this
                     if self.authenticate(_data['user']['account_name'], _data['user']['password']):
+                        if _data['user']['account_name'] not in self.users:
+                            self.user = _data['user']['account_name']
+                            self.connections[self.transport]['username'] = self.user
+                            self.users[_data['user']['account_name']] = self.connections[self.transport]
+
+                        resp_msg = self.jim.probe(self.user)
+                        self.users[_data['user']['account_name']]['transport'].write(self._dict_to_bytes(resp_msg))
+                    else:
                         resp_msg = self.jim.response(code=402, error='wrong login/password')
                         self.transport.write(self._dict_to_bytes(resp_msg))
 

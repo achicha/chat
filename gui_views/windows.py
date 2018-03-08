@@ -32,7 +32,7 @@ class LoginWindow(QtWidgets.QDialog):
 
 
 class ContactsWindow(QtWidgets.QMainWindow):
-    def __init__(self, client_instance, user_name, parent=None):
+    def __init__(self, client_instance, user_name=None, parent=None):
         super().__init__(parent)
         self.client_instance = client_instance
 
