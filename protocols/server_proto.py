@@ -1,4 +1,5 @@
 import asyncio
+import hashlib, binascii
 
 from protocols.messages_proto import JimRequestMessage
 from protocols.mixins import ConvertMixin, DbInterfaceMixin
@@ -39,22 +40,35 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
     def _login_required(self, username):
         """check user's credentials or add new user to DB"""
-        pass
-
-    def server_auth(self, username, password):
-        """
-         server authenticate
-        :param username:
-        :param password:
-        :return:
-        """
-        # add user to DB if not exist
-        if not self.get_client_by_username(username):
-            self.add_client(username, password)  # add new client
-
-
         # add client's history row
         self.add_client_history(username)
+        pass
+
+    def authenticate(self, username, password):
+        # check user in DB
+        usr = self.get_client_by_username(username)
+        if usr:
+            # existing user
+            dk = hashlib.pbkdf2_hmac('sha256',  password.encode('utf-8'),
+                                     'salt'.encode('utf-8'), 100000)
+            hashed_password = binascii.hexlify(dk)
+
+            if hashed_password == usr.password:
+                # add client's history row
+                self.add_client_history(username)
+                return True
+            else:
+                return False
+        else:
+            # new user
+            dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'),
+                                     'salt'.encode('utf-8'), 100000)
+            hashed_password = binascii.hexlify(dk)
+
+            self.add_client(self.user, hashed_password)
+            # add client's history row
+            self.add_client_history(username)
+            return True
 
     def data_received(self, data):
         """The protocol expects a json message:
@@ -103,7 +117,9 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                         self.transport.write(self._dict_to_bytes(resp_msg))
 
                 elif _data['action'] == 'authenticate':
-                    pass
+                    if self.authenticate(_data['user']['account_name'], _data['user']['password']):
+                        resp_msg = self.jim.response(code=402, error='wrong login/password')
+                        self.transport.write(self._dict_to_bytes(resp_msg))
 
             except Exception as e:
                 resp_msg = self.jim.response(code=500, error=e)

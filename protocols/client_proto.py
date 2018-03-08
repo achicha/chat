@@ -1,6 +1,5 @@
 import asyncio
 from sys import stdout
-import hashlib, binascii
 
 from protocols.messages_proto import JimRequestMessage
 from protocols.mixins import ConvertMixin, DbInterfaceMixin
@@ -19,8 +18,6 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         self.sockname = None
         self.transport = None
         self.output = None
-
-        self.is_auth = self.client_auth()
 
     def connection_made(self, transport):
         """ Called when connection is initiated """
@@ -48,29 +45,9 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 if msg['from']:
                     self.output(msg)
             except Exception as e:
-                pass
-
-    def client_auth(self):
-        # check user in DB
-        usr = self.get_client_by_username(self.user)
-        if usr:
-            # existing user
-            dk = hashlib.pbkdf2_hmac('sha256',  self.password.encode('utf-8'),
-                                     'salt'.encode('utf-8'), 100000)
-            hashed_password = binascii.hexlify(dk)
-
-            if hashed_password == usr.password:
-                return True
-            else:
-                return False
-        else:
-            # new user
-            dk = hashlib.pbkdf2_hmac('sha256', self.password.encode('utf-8'),
-                                     'salt'.encode('utf-8'), 100000)
-            hashed_password = binascii.hexlify(dk)
-
-            self.add_client(self.user, hashed_password)
-            return True
+                if msg['action'] == 'quit':
+                    self.conn_is_open = False
+                    self.loop.stop()
 
     def send(self, to_user=None, content='basic text'):
         """
