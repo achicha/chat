@@ -53,7 +53,6 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
         """
         _data = self._bytes_to_dict(data)
-
         if _data:
             try:
                 if _data['action'] == 'msg':
@@ -69,33 +68,34 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                             self.users[_data['to']]['transport'].write(self._dict_to_bytes(_data))
                         except KeyError:
                             print('{} is not connected yet'.format(_data['to']))
+
                 elif _data['action'] == 'list':
                     contacts = self.get_contacts(_data['from'])
                     # todo send list request
                     #self.users[_data['from']]['transport'].write()
                     #[contact.contact.username for contact in contacts]
-            except Exception as e:
-                if _data['user']['account_name']:
-                    # when first message received
 
-                    # add new user to temp variables
-                    print(_data['user']['account_name'], self.transport)
-                    self.user = _data['user']['account_name']
-                    self.connections[self.transport]['username'] = self.user
-                    self.users[_data['user']['account_name']] = self.connections[self.transport]
+                elif _data['action'] == 'presence':  # received presence msg
+                    if _data['user']['account_name']:
+                        # add new user to temp variables
+                        print(_data['user']['account_name'], self.transport)
+                        self.user = _data['user']['account_name']
+                        self.connections[self.transport]['username'] = self.user
+                        self.users[_data['user']['account_name']] = self.connections[self.transport]
 
-                    # check user in DB
-                    self._login_required(self.user)
+                        # check user in DB
+                        self._login_required(self.user)
 
-                    if _data['action'] == 'presence':
-                        # received presence msg
                         print(self.user, _data['user']['status'])
                         resp_msg = self.jim.response(code=200)
                         self.transport.write(self._dict_to_bytes(resp_msg))
-
                     else:
                         resp_msg = self.jim.response(code=500, error='wrong presence msg')
                         self.transport.write(self._dict_to_bytes(resp_msg))
+
+            except Exception as e:
+                resp_msg = self.jim.response(code=500, error=e)
+                self.transport.write(self._dict_to_bytes(resp_msg))
 
         else:
             resp_msg = self.jim.response(code=500, error='You sent a message without a name or data')
