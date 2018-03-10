@@ -68,7 +68,7 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         """check user's credentials or add new user to DB"""
         # add client's history row
         # self.add_client_history(username)
-        print('status:', self.get_user_status(username))
+        print('Auth status:', self.get_user_status(username))
 
     def authenticate(self, username, password):
         # check user in DB
@@ -93,47 +93,76 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             self.add_client_history(username)
             return True
 
-    def data_received(self, data):
-        """The protocol expects a json message:
-
-        and will return the following json message
-
+    def action_list(self, data):
         """
+         Receive internal request to show/add/del contacts
+        :param data: msg dict
+        :return:
+        """
+        try:
+            usr = data['user']['account_name']
+        except:
+            usr = data['from']
+        self._login_required(usr)
+
+        if data['user']['status'] == 'show':
+            contacts = self.get_contacts(data['user']['account_name'])
+            if contacts:
+                data['contact_list'] = ','.join([contact.contact.username for contact in contacts])
+
+            self.users[data['user']['account_name']]['transport'].write(self._dict_to_bytes(data))
+
+        elif data['user']['status'] == 'add':
+            if data['user']['contact']:
+                self.add_contact(data['user']['account_name'], data['user']['contact'])
+
+        elif data['user']['status'] == 'del':
+            if data['user']['contact']:
+                self.del_contact(data['user']['account_name'], data['user']['contact'])
+
+    def action_msg(self, data):
+        """
+         Receive message from another user
+        :param data: msg dict
+        :return:
+        """
+        try:
+            usr = data['user']['account_name']
+        except:
+            usr = data['from']
+        self._login_required(usr)
+
+        try:
+            if data['from']:  # send msg to sender's chat
+                print(data)
+
+                # save msg to DB history messages
+                self._cm.add_client_message(data['from'], data['to'], data['message'])
+
+                self.users[data['from']]['transport'].write(self._dict_to_bytes(data))
+
+            if data['to'] and data['from'] != data['to']:  # send msg to receiver's chat
+                try:
+                    self.users[data['to']]['transport'].write(self._dict_to_bytes(data))
+                except KeyError:
+                    print('{} is not connected yet'.format(data['to']))
+
+        except Exception as e:
+            resp_msg = self.jim.response(code=500, error=e)
+            self.transport.write(self._dict_to_bytes(resp_msg))
+
+    def data_received(self, data):
+        """The protocol expects a json message in bytes"""
+
         _data = self._bytes_to_dict(data)
+        print(_data)
         if _data:
             try:
                 if _data['action'] == 'msg':
-                    if _data['from']:  # send msg to sender's chat
-                        print(_data)
-
-                        # save msg to DB history messages
-                        self._cm.add_client_message(_data['from'], _data['to'], _data['message'])
-
-                        self.users[_data['from']]['transport'].write(self._dict_to_bytes(_data))
-
-                    if _data['to'] and _data['from'] != _data['to']:  # send msg to receiver's chat
-                        try:
-                            self.users[_data['to']]['transport'].write(self._dict_to_bytes(_data))
-                        except KeyError:
-                            print('{} is not connected yet'.format(_data['to']))
+                    self.action_msg(_data)
 
                 elif _data['action'] == 'list':
-                    self._login_required(_data['user']['account_name'])
-
-                    if _data['user']['status'] == 'show':
-                        contacts = self.get_contacts(_data['user']['account_name'])
-                        if contacts:
-                            _data['contact_list'] = ','.join([contact.contact.username for contact in contacts])
-
-                        self.users[_data['user']['account_name']]['transport'].write(self._dict_to_bytes(_data))
-
-                    elif _data['user']['status'] == 'add':
-                        if _data['user']['contact']:
-                            self.add_contact(_data['user']['account_name'], _data['user']['contact'])
-
-                    elif _data['user']['status'] == 'del':
-                        if _data['user']['contact']:
-                            self.del_contact(_data['user']['account_name'], _data['user']['contact'])
+                    self.action_list(_data)
 
                 elif _data['action'] == 'presence':  # received presence msg
                     if _data['user']['account_name']:

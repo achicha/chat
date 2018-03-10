@@ -73,7 +73,8 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             except KeyError:
                 try:
                     if msg['response'] == 200:
-                        print('response 200')
+                        pass
+                        #print('response 200')
                         # self.output(msg, response=True)
 
                     if msg['response'] == 402:
@@ -139,7 +140,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         _data = data
         try:
             if _data['from'] == self.user:
-                _data['message'] = 'Me: ' + _data['message']
+                _data['message'] = 'Me to {}: '.format(_data['to']) + _data['message']
             else:
                 _data['message'] = '{}: '.format(_data['from']) + _data['message']
             stdout.write(str(_data['message']) + '\n')
