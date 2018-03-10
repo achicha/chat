@@ -36,7 +36,6 @@ class ConsoleClientApp:
         usr = input('username: ')
         passwrd = input('password: ')
         tasks = []
-        print(self.db_path)
 
         _client = ChatClientProtocol(db_path=self.db_path,
                                      loop=loop, tasks=tasks,

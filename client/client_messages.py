@@ -53,7 +53,7 @@ class JimClientMessage:
         }
         return data
 
-    def list_(self, sender, status="my contacts list"):
+    def list_(self, sender, status="show", person=''):
         """
         Сформировать list-сообщение для запроса контактов.
         :return: Словарь сообщения
@@ -62,10 +62,11 @@ class JimClientMessage:
             "action": "list",
             "time": dt.now().timestamp(),
             "type": "status",
-            "contact_list": [],
+            "contact_list": 'No contacts yet',
             "user": {
                 "account_name": sender,
-                "status": status
+                "status": status,
+                "contact": person
             }
         }
         return data

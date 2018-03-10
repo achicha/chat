@@ -36,8 +36,17 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
     def connection_lost(self, exc):
         """ Disconnect from the server"""
-        self.conn_is_open = False
-        self.loop.close()
+
+        # todo хз как убить задачу
+        try:
+            self.conn_is_open = False
+            for task in self.tasks:
+                task.cancel()
+        except:
+            pass
+        finally:
+            self.loop.stop()
+            self.loop.close()
 
         # print('delete')
 
@@ -48,11 +57,12 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         :return:
         """
         msg = self._bytes_to_dict(data)
-        print(msg)
         if msg:
             try:
                 if msg['action'] == 'msg':
                     self.output(msg)
+                elif msg['action'] == 'list':
+                    self.output(msg['contact_list'])
                 elif msg['action'] == 'probe':
                     if self.gui_instance:
                         self.gui_instance.is_auth = True
@@ -67,30 +77,18 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                         # self.output(msg, response=True)
 
                     if msg['response'] == 402:
-                        self.conn_is_open = False
-                        for task in self.tasks:
-                            task.cancel()
-
-                        #self.loop.stop()
-                        # todo хз как убить задачу
-                        print('closed')
+                        self.connection_lost(asyncio.CancelledError)
 
                 except Exception as e:
                     print(e)
 
-    def send(self, to_user=None, content='basic text'):
+    def send(self, request):
         """
             Send json-like message
-        :param to_user:
-        :param content:
+        :param request: dict message
         :return:
         """
-        if content:
-            if not to_user:
-                to_user = self.user
-            request = self.jim.message(sender=self.user,
-                                       receiver=to_user,
-                                       text=content)
+        if request:
             msg = self._dict_to_bytes(request)
             self.transport.write(msg)
 
@@ -107,8 +105,30 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         self.output("{2} connected to {0}:{1}\n".format(*self.sockname, self.user))
 
         while True:
-            content = await self.loop.run_in_executor(None, input)  # , "{}: ".format(self.user))  # Get stdin/stdout forever
-            self.send(content=content)
+            content = await self.loop.run_in_executor(None, input)  # Get stdin/stdout forever
+            request = ''
+            args_ = content.split(' ')
+
+            if args_[0] == 'list':
+                if len(args_) > 1:
+                    if args_[1] == 'add':
+                        request = self.jim.list_(self.user, status='add', person=args_[2])
+                    elif args_[1] == 'del':
+                        request = self.jim.list_(self.user, status='del', person=args_[2])
+                else:
+                    request = self.jim.list_(self.user)
+            elif args_[0] == 'quit':
+                self.connection_lost(asyncio.CancelledError)
+            else:
+                # if message to another person
+                if len(args_) < 2:
+                    print('wrong message or receivers name')
+                else:
+                    request = self.jim.message(sender=self.user,
+                                               receiver=args_[0],
+                                               text=' '.join(args_[1:]))
+            if request:
+                self.send(request)
 
     def output_to_console(self, data):
         """
