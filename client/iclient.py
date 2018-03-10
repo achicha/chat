@@ -23,12 +23,7 @@ class ConsoleClientApp:
         self.ins = None
 
     def main(self):
-        # def handler(loop):
-        #     loop.remove_signal_handler(signal.SIGTERM)
-        #     loop.stop()
-
         loop = asyncio.get_event_loop()
-        # loop.add_signal_handler(signal.SIGTERM, handler, loop)
         for signame in ('SIGINT', 'SIGTERM'):
             loop.add_signal_handler(getattr(signal, signame), loop.stop)
 
@@ -38,7 +33,8 @@ class ConsoleClientApp:
         tasks = []
 
         _client = ChatClientProtocol(db_path=self.db_path,
-                                     loop=loop, tasks=tasks,
+                                     loop=loop,
+                                     tasks=tasks,
                                      username=usr or self.args["user"],
                                      password=passwrd or self.args["password"])
         coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])

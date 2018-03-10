@@ -29,7 +29,7 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         self.transport = transport
 
     def eof_received(self):
-        print('EOF(end-of-file) received')
+        # print('EOF(end-of-file) received')
         self.transport.close()
 
     def connection_lost(self, exc):
@@ -43,7 +43,6 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             print(self.connections)
             print(self.users)
         else:
-            print(exc)
             # remove closed connections
             rm_con = []
             for con in self.connections:
