@@ -1,9 +1,9 @@
 import time
 from PyQt5 import QtCore, QtWidgets
 
-from gui_views.ui_core.login_ui import Ui_Login_Dialog as login_ui_class
-from gui_views.ui_core.contacts_ui import Ui_ContactsWindow as contacts_ui_class
-from gui_views.ui_core.chat_ui import Ui_ChatMainWindow as chat_ui_class
+from client.ui.login_ui import Ui_Login_Dialog as login_ui_class
+from client.ui.contacts_ui import Ui_ContactsWindow as contacts_ui_class
+from client.ui.chat_ui import Ui_ChatMainWindow as chat_ui_class
 # pyuic5 -x login.ui -o login_ui.py  # update UI file
 
 

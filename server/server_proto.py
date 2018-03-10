@@ -1,7 +1,8 @@
 import asyncio
-import hashlib, binascii
+import hashlib
+import binascii
 
-from utils.messages_proto import JimRequestMessage
+from server.server_messages import JimServerMessage
 from utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
@@ -12,7 +13,7 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         super().__init__(db_path)
         self.connections = connections
         self.users = users
-        self.jim = JimRequestMessage()
+        self.jim = JimServerMessage()
 
         # useful temp variables
         self.user = None
@@ -52,7 +53,6 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                                  'salt'.encode('utf-8'), 100000)
         hashed_password = binascii.hexlify(dk)
 
-        print('authsss')
         if usr:
             # existing user
             if hashed_password == usr.password:
@@ -95,18 +95,11 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
                 elif _data['action'] == 'list':
                     contacts = self.get_contacts(_data['from'])
-                    # todo send list request
-                    # self.users[_data['from']]['transport'].write()
-                    # [contact.contact.username for contact in contacts]
+                    _data['action']['contact_list'] = [contact.contact.username for contact in contacts]
+                    self.users[_data['from']]['transport'].write(self._dict_to_bytes(_data))
 
                 elif _data['action'] == 'presence':  # received presence msg
                     if _data['user']['account_name']:
-
-                        # # add new user to temp variables
-                        # if _data['user']['account_name'] not in self.users:
-                        #     self.user = _data['user']['account_name']
-                        #     self.connections[self.transport]['username'] = self.user
-                        #     self.users[_data['user']['account_name']] = self.connections[self.transport]
 
                         print(self.user, _data['user']['status'])
                         resp_msg = self.jim.response(code=200)
@@ -130,6 +123,10 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                     else:
                         resp_msg = self.jim.response(code=402, error='wrong login/password')
                         self.transport.write(self._dict_to_bytes(resp_msg))
+
+                elif _data['action'] == 'quit':
+                    print('disconnect')
+                    # todo quit
 
             except Exception as e:
                 resp_msg = self.jim.response(code=500, error=e)

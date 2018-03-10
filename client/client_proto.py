@@ -1,19 +1,20 @@
 import asyncio
 from sys import stdout
 
-from utils.messages_proto import JimRequestMessage
+import sys
+
+from client.client_messages import JimClientMessage
 from utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
-    def __init__(self, db_path, loop, authenticated, username=None, password=None, gui_instance=None, **kwargs):
+    def __init__(self, db_path, loop, tasks=[], username=None, password=None, gui_instance=None, **kwargs):
         super().__init__(db_path)
         self.user = username
         self.password = password
-        self.jim = JimRequestMessage()
+        self.tasks = tasks
+        self.jim = JimClientMessage()
         self.gui_instance = gui_instance
-        self.authenticated = authenticated
-        self.last_msg = None
 
         self.conn_is_open = False
         self.loop = loop
@@ -25,12 +26,20 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         """ Called when connection is initiated """
         self.sockname = transport.get_extra_info("sockname")
         self.transport = transport
+        self.send_auth(self.user, self.password)
         self.conn_is_open = True
+
+    def send_auth(self, user, password):
+        """send authenticate message to the server"""
+        if user and password:
+            self.transport.write(self._dict_to_bytes(self.jim.auth(user, password)))
 
     def connection_lost(self, exc):
         """ Disconnect from the server"""
         self.conn_is_open = False
-        self.loop.stop()
+        self.loop.close()
+
+        # print('delete')
 
     def data_received(self, data):
         """
@@ -42,31 +51,33 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         print(msg)
         if msg:
             try:
-                if msg['action'] == 'probe':
-                    self.authenticated = True
-                    self.gui_instance.is_auth = True
-                    # when server sent probe msg -> auth is complete
-                    self.transport.write(self._dict_to_bytes(self.jim.presence(self.user,
-                                                                               status="Connected from {0}:{1}".format(
-                                                                                   *self.sockname))))
-                if msg['action'] == 'quit':
-                    self.conn_is_open = False
-                    self.loop.stop()
-
-                if msg['response'] == 200:
-                    print('response 200')
-                    #self.output(msg, response=True)
-                if msg['response'] == 402:
-                    print('response 402. wrong login/password')
-
-                if msg['from']:
+                if msg['action'] == 'msg':
                     self.output(msg)
-            except Exception as e:
-                pass
+                elif msg['action'] == 'probe':
+                    if self.gui_instance:
+                        self.gui_instance.is_auth = True
+                    # when server sent probe msg -> auth is complete
+                    self.transport.write(self._dict_to_bytes(
+                        self.jim.presence(self.user,
+                                          status="Connected from {0}:{1}".format(*self.sockname))))
+            except KeyError:
+                try:
+                    if msg['response'] == 200:
+                        print('response 200')
+                        # self.output(msg, response=True)
 
-    def send_auth(self, user, password):
-        if user and password:
-            self.transport.write(self._dict_to_bytes(self.jim.auth(user, password)))
+                    if msg['response'] == 402:
+                        print('11111response 402. wrong login/password')
+                        #self.loop.stop()
+                        self.conn_is_open = False
+                        print('now close')
+                        self.loop.stop()
+                        self.loop.close()
+                        print('closed')
+                        print(self.tasks)
+
+                except Exception as e:
+                    print(e)
 
     def send(self, to_user=None, content='basic text'):
         """
@@ -78,13 +89,13 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         if content:
             if not to_user:
                 to_user = self.user
-            request = self.jim.request(sender=self.user,
+            request = self.jim.message(sender=self.user,
                                        receiver=to_user,
                                        text=content)
             msg = self._dict_to_bytes(request)
             self.transport.write(msg)
 
-    async def get_from_console(self, loop):
+    async def get_from_console(self):
         """
         Recieve messages from Console
         :param loop:
@@ -97,7 +108,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         self.output("{2} connected to {0}:{1}\n".format(*self.sockname, self.user))
 
         while True:
-            content = await loop.run_in_executor(None, input)#, "{}: ".format(self.user))  # Get stdin/stdout forever
+            content = await self.loop.run_in_executor(None, input)  # , "{}: ".format(self.user))  # Get stdin/stdout forever
             self.send(content=content)
 
     def output_to_console(self, data):
@@ -118,7 +129,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
     def get_from_gui(self):
         self.output = self.output_to_gui
-        #await loop.run_in_executor(None, self.output)  # Run GUI in executor
+        # await loop.run_in_executor(None, self.output)  # Run GUI in executor
 
     def output_to_gui(self, msg, response=False):
         """

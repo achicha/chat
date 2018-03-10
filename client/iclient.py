@@ -1,6 +1,7 @@
 """файл для запуска клиентского приложения в цикле"""
 import argparse
 import asyncio
+import signal
 import sys
 
 import time
@@ -22,19 +23,43 @@ class ConsoleClientApp:
         self.ins = None
 
     def main(self):
-        loop = asyncio.get_event_loop()
-        _client = ChatClientProtocol(db_path=self.db_path, loop=loop, user=self.args["user"])
-        coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
-        server = loop.run_until_complete(coro)
+        # def handler(loop):
+        #     loop.remove_signal_handler(signal.SIGTERM)
+        #     loop.stop()
 
-        asyncio.ensure_future(_client.get_from_console(loop))
+        loop = asyncio.get_event_loop()
+        # loop.add_signal_handler(signal.SIGTERM, handler, loop)
+        for signame in ('SIGINT', 'SIGTERM'):
+            loop.add_signal_handler(getattr(signal, signame), loop.stop)
+
+        # ask about login/password
+        usr = input('username: ')
+        passwrd = input('password: ')
+        tasks = []
+        print(self.db_path)
+
+        _client = ChatClientProtocol(db_path=self.db_path,
+                                     loop=loop, tasks=tasks,
+                                     username=usr or self.args["user"],
+                                     password=passwrd or self.args["password"])
+        coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
+        transport, protocol = loop.run_until_complete(coro)
+
         # Serve requests until Ctrl+C
         try:
-            loop.run_forever()
-        except KeyboardInterrupt:
-            loop.close()
+            task = asyncio.ensure_future(_client.get_from_console())  # create Task from coroutine
+            tasks.append(task)
 
-        loop.close()
+            loop.run_until_complete(task)
+
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            # todo need to destroy get_from_console task somehow
+            print(e)
+
+        finally:
+            loop.close()
 
 
 class GuiClientApp:
@@ -80,7 +105,6 @@ class GuiClientApp:
             from sys import stdout
             stdout.write(str(wnd.is_auth))
             stdout.write(str(_client.gui_instance.is_auth))
-            stdout.write(str(_client.authenticated))
             stdout.write(str(_client.user))
 
             # start GUI client
@@ -102,7 +126,8 @@ class GuiClientApp:
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Client settings")
-    parser.add_argument("--user", default="user_2", type=str)
+    parser.add_argument("--user", default="user1", type=str)
+    parser.add_argument("--password", default="123", type=str)
     parser.add_argument("--addr", default="127.0.0.1", type=str)
     parser.add_argument("--port", default=PORT, type=int)
     parser.add_argument('--nogui', action='store_true')

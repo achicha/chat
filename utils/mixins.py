@@ -1,6 +1,6 @@
 import json
 
-from client.client_config import ENCODING
+from server.server_config import ENCODING
 from server.database.controller import ClientMessages
 from server.database.models import CBase
 

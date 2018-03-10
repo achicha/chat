@@ -1,8 +1,8 @@
 from datetime import datetime as dt
 
 
-class JimRequestMessage:
-    """Формирование запроса"""
+class JimClientMessage:
+    """Формирование запроса клиента"""
     def auth(self, username, password):
         """
         Сообщение для авторизации пользователя на сервере
@@ -37,14 +37,13 @@ class JimRequestMessage:
         }
         return data
 
-    def probe(self, sender, status="Are you there?"):
+    def quit(self, sender, status="disconnect"):
         """
-        Сформировать ​​presence-сообщение присутствие.
-        Сервисное сообщение для извещения сервера о присутствии клиента​ ​ online;
+        Сформировать quit-сообщение. Клиент хочет отключится от сервера.
         :return: Словарь сообщения
         """
         data = {
-            "action": "probe",
+            "action": "quit",
             "time": dt.now().timestamp(),
             "type": "status",
             "user": {
@@ -54,7 +53,24 @@ class JimRequestMessage:
         }
         return data
 
-    def request(self, sender, receiver='user1', text='some msg text'):
+    def list_(self, sender, status="my contacts list"):
+        """
+        Сформировать list-сообщение для запроса контактов.
+        :return: Словарь сообщения
+        """
+        data = {
+            "action": "list",
+            "time": dt.now().timestamp(),
+            "type": "status",
+            "contact_list": [],
+            "user": {
+                "account_name": sender,
+                "status": status
+            }
+        }
+        return data
+
+    def message(self, sender, receiver='user1', text='some msg text'):
         """
         client -> client message
         ​простое​ ​ сообщение​ ​ пользователю​ ​ или​ ​ в ​ ​ чат;
@@ -73,31 +89,3 @@ class JimRequestMessage:
         }
 
         return data
-
-    def response(self, code=None, error=None):
-        """
-        create response dictionary
-        :param msg: request message in bytes
-        :param code: http code
-        :param error: error text
-        :return: response dictionary
-        """
-        _data = {
-            'response': code,
-            'time': dt.now().timestamp(),
-            'error': error
-        }
-        # if ACTION not in msg:
-        #     return {RESPONSE: code or 400,
-        #             ERROR: 'Не верный запрос. Action is not exist'}
-        # if TIME not in msg or not isinstance(msg[TIME], (float, int)):
-        #     return {RESPONSE: code or 400,
-        #             ERROR: 'Не верный запрос. Wrong time'}
-        # if msg[ACTION] == PRESENCE:
-        #     return {RESPONSE: code or 200,
-        #             ERROR: error}  # presence msg
-        # if msg[ACTION] == MESSAGE:
-        #     return {RESPONSE: code or 200,
-        #             ERROR: error}  # client msg
-        return _data
-
