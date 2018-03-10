@@ -2,9 +2,9 @@ import select
 from socket import socket, AF_INET, SOCK_STREAM
 import sys
 
-from config import PORT
-from protocols.messages_proto import JimResponseMessage
-from log_config import log
+from client.client_config import PORT
+from utils.messages_proto import JimResponseMessage
+from utils.log_config import log
 
 
 @log

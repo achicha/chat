@@ -4,8 +4,7 @@ from PyQt5 import QtCore, QtWidgets
 from gui_views.ui_core.login_ui import Ui_Login_Dialog as login_ui_class
 from gui_views.ui_core.contacts_ui import Ui_ContactsWindow as contacts_ui_class
 from gui_views.ui_core.chat_ui import Ui_ChatMainWindow as chat_ui_class
-from gui_views.ui_core.server_monitor_ui import Ui_ServerWindow as server_ui_class
-# pyuic5 -x login.ui -o login_ui.py
+# pyuic5 -x login.ui -o login_ui.py  # update UI file
 
 
 class LoginWindow(QtWidgets.QDialog):
@@ -35,6 +34,7 @@ class ContactsWindow(QtWidgets.QMainWindow):
     def __init__(self, client_instance, user_name=None, parent=None):
         super().__init__(parent)
         self.client_instance = client_instance
+        self.is_auth = False
 
         self.ui = contacts_ui_class()
         self.ui.setupUi(self)
@@ -55,7 +55,7 @@ class ContactsWindow(QtWidgets.QMainWindow):
 
     def after_start(self):
         """do appropriate things after starting the App"""
-        self.update_contacts(self.username)  # update list
+        #self.update_contacts(self.username)  # update list
 
     def update_contacts(self, client_username):
         """обновление контакт листа"""
@@ -156,41 +156,4 @@ class ChatWindow(QtWidgets.QMainWindow):
             self.ui.send_text.clear()
 
 
-class ServerMonitorWindow(QtWidgets.QMainWindow):
-    def __init__(self, parsed_args,  server_instance, parent=None):
-        super().__init__(parent)
-        self.server_instance = server_instance
-        self.parsed_args = parsed_args
 
-        self.ui = server_ui_class()
-        self.ui.setupUi(self)
-        self.ui.refresh_action.triggered.connect(self.refresh_action)
-        self.after_start()
-
-    def after_start(self):
-        """do appropriate things after starting the App"""
-        self.update_clients()
-
-    def update_clients(self):
-        """обновление контакт листа"""
-        contacts = self.server_instance.get_all_clients()
-        self.ui.clients_list.clear()
-        self.ui.clients_list.addItems([contact.username for contact in contacts])
-
-    def update_history_messages(self, username):
-        self.ui.msg_history_list.clear()
-        msgs = self.server_instance.get_client_history(username)
-        _resp = [m.time.strftime("%Y-%m-%d %H:%M:%S") + '_' + m.ip_addr + '_' + m.client.username for m in msgs]
-        self.ui.msg_history_list.addItems(_resp)
-
-    def on_clients_list_itemDoubleClicked(self):
-        selected_client = self.ui.clients_list.currentItem().text()
-        self.update_history_messages(selected_client)
-        self.ui.tabWidgetClients.setCurrentIndex(1)  # set history tab active
-
-    def refresh_action(self):
-        """refresh from menu
-        QAction.triggered only work with direct connect() method,
-        otherwise it will be triggered twice."""
-        print('refresh')
-        self.update_clients()

@@ -1,5 +1,5 @@
-from database.controller import ClientMessages
-from database.models import CBase
+from server.database.controller import ClientMessages
+from server.database.models import CBase
 
 
 class TestDatabase:

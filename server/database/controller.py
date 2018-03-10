@@ -1,8 +1,8 @@
 from datetime import datetime as dt
 from sqlalchemy.exc import IntegrityError
 
-from database.db_connector import DataAccessLayer
-from database.models import Client, History, Messages, Contacts
+from server.database.db_connector import DataAccessLayer
+from server.database.models import Client, History, Messages, Contacts
 
 
 class ClientMessages:

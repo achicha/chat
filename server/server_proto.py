@@ -1,12 +1,13 @@
 import asyncio
 import hashlib, binascii
 
-from protocols.messages_proto import JimRequestMessage
-from protocols.mixins import ConvertMixin, DbInterfaceMixin
+from utils.messages_proto import JimRequestMessage
+from utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
     """ A Server Protocol listening for subscriber messages """
+
     def __init__(self, db_path, connections, users):
         super().__init__(db_path)
         self.connections = connections
@@ -41,18 +42,19 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
     def _login_required(self, username):
         """check user's credentials or add new user to DB"""
         # add client's history row
-        self.add_client_history(username)
+        # self.add_client_history(username)
         pass
 
     def authenticate(self, username, password):
         # check user in DB
         usr = self.get_client_by_username(username)
+        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'),
+                                 'salt'.encode('utf-8'), 100000)
+        hashed_password = binascii.hexlify(dk)
+
+        print('authsss')
         if usr:
             # existing user
-            dk = hashlib.pbkdf2_hmac('sha256',  password.encode('utf-8'),
-                                     'salt'.encode('utf-8'), 100000)
-            hashed_password = binascii.hexlify(dk)
-
             if hashed_password == usr.password:
                 # add client's history row
                 self.add_client_history(username)
@@ -61,11 +63,8 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 return False
         else:
             # new user
-            dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'),
-                                     'salt'.encode('utf-8'), 100000)
-            hashed_password = binascii.hexlify(dk)
-
-            self.add_client(self.user, hashed_password)
+            print('new user')
+            self.add_client(username, hashed_password)
             # add client's history row
             self.add_client_history(username)
             return True
@@ -82,6 +81,7 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 if _data['action'] == 'msg':
                     if _data['from']:  # send msg to sender's chat
                         print(_data)
+
                         # save msg to DB history messages
                         self._cm.add_client_message(_data['from'], _data['to'], _data['message'])
 
@@ -96,19 +96,17 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 elif _data['action'] == 'list':
                     contacts = self.get_contacts(_data['from'])
                     # todo send list request
-                    #self.users[_data['from']]['transport'].write()
-                    #[contact.contact.username for contact in contacts]
+                    # self.users[_data['from']]['transport'].write()
+                    # [contact.contact.username for contact in contacts]
 
                 elif _data['action'] == 'presence':  # received presence msg
                     if _data['user']['account_name']:
-                        # add new user to temp variables
-                        if _data['user']['account_name'] not in self.users:
-                            self.user = _data['user']['account_name']
-                            self.connections[self.transport]['username'] = self.user
-                            self.users[_data['user']['account_name']] = self.connections[self.transport]
 
-                        # check user in DB
-                        self._login_required(self.user)
+                        # # add new user to temp variables
+                        # if _data['user']['account_name'] not in self.users:
+                        #     self.user = _data['user']['account_name']
+                        #     self.connections[self.transport]['username'] = self.user
+                        #     self.users[_data['user']['account_name']] = self.connections[self.transport]
 
                         print(self.user, _data['user']['status'])
                         resp_msg = self.jim.response(code=200)
@@ -120,6 +118,8 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 elif _data['action'] == 'authenticate':
                     # todo complete this
                     if self.authenticate(_data['user']['account_name'], _data['user']['password']):
+
+                        # add new user to temp variables
                         if _data['user']['account_name'] not in self.users:
                             self.user = _data['user']['account_name']
                             self.connections[self.transport]['username'] = self.user

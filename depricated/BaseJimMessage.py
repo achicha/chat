@@ -1,6 +1,5 @@
 import json
-import sys
-from config import ENCODING, PORT
+from client.client_config import ENCODING
 
 
 class BaseJimMessage:

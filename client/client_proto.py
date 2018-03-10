@@ -1,8 +1,8 @@
 import asyncio
 from sys import stdout
 
-from protocols.messages_proto import JimRequestMessage
-from protocols.mixins import ConvertMixin, DbInterfaceMixin
+from utils.messages_proto import JimRequestMessage
+from utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
@@ -44,6 +44,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             try:
                 if msg['action'] == 'probe':
                     self.authenticated = True
+                    self.gui_instance.is_auth = True
                     # when server sent probe msg -> auth is complete
                     self.transport.write(self._dict_to_bytes(self.jim.presence(self.user,
                                                                                status="Connected from {0}:{1}".format(
@@ -51,8 +52,13 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 if msg['action'] == 'quit':
                     self.conn_is_open = False
                     self.loop.stop()
+
                 if msg['response'] == 200:
                     print('response 200')
+                    #self.output(msg, response=True)
+                if msg['response'] == 402:
+                    print('response 402. wrong login/password')
+
                 if msg['from']:
                     self.output(msg)
             except Exception as e:
@@ -114,14 +120,20 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         self.output = self.output_to_gui
         #await loop.run_in_executor(None, self.output)  # Run GUI in executor
 
-    def output_to_gui(self, msg):
+    def output_to_gui(self, msg, response=False):
         """
          send update signal to GUI client
+        :param response: raw response from server {'response':200}
         :type msg: message dictionary
         :return:
         """
         try:
-            if self.gui_instance and self.user == msg['to']:
-                self.gui_instance.chat_ins()
+            if self.gui_instance:
+                if response:
+                    self.gui_instance.is_auth = True
+
+                if self.user == msg['to']:
+                    self.gui_instance.chat_ins()
+
         except Exception as e:
             print(e)

@@ -4,13 +4,13 @@ import asyncio
 import sys
 
 import time
-from PyQt5 import Qt, QtWidgets
+from PyQt5 import Qt
 #from PyQt5.QtCore import QEventLoop
 from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
 
-from protocols.client_proto import ChatClientProtocol
-from gui_views.windows import LoginWindow, ContactsWindow
-from config import DB_PATH, PORT
+from client.client_proto import ChatClientProtocol
+from client.ui.windows import LoginWindow, ContactsWindow
+from client.client_config import DB_PATH, PORT
 
 
 class ConsoleClientApp:
@@ -77,6 +77,12 @@ class GuiClientApp:
             _client.send_auth(_client.user, login_wnd.password)
             time.sleep(3)
 
+            from sys import stdout
+            stdout.write(str(wnd.is_auth))
+            stdout.write(str(_client.gui_instance.is_auth))
+            stdout.write(str(_client.authenticated))
+            stdout.write(str(_client.user))
+
             # start GUI client
             wnd.show()
             _client.get_from_gui()  #asyncio.ensure_future(_client.get_from_gui(loop))
@@ -85,10 +91,10 @@ class GuiClientApp:
             try:
                 loop.run_forever()
             except KeyboardInterrupt:
-                loop.close()
+                pass
 
             #loop.run_until_complete(server.wait_closed())
-            loop.close()
+
 
             # else:
             #     print('wrong users credentials')

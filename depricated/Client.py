@@ -4,9 +4,9 @@ from random import random
 
 import time
 
-from protocols.messages_proto import JimRequestMessage, JimResponseMessage
-from config import PORT, OK
-from log_config import log
+from utils.messages_proto import JimRequestMessage, JimResponseMessage
+from client.client_config import PORT, OK
+from utils.log_config import log
 
 
 @log
