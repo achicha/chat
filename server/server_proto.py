@@ -61,13 +61,14 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
             for u in rm_user:
                 del self.users[u]
+                self.set_user_offline(u)
                 print('{} disconnected'.format(u))
 
     def _login_required(self, username):
         """check user's credentials or add new user to DB"""
         # add client's history row
         # self.add_client_history(username)
-        pass
+        print('status:', self.get_user_status(username))
 
     def authenticate(self, username, password):
         # check user in DB
@@ -117,6 +118,8 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                             print('{} is not connected yet'.format(_data['to']))
 
                 elif _data['action'] == 'list':
+                    self._login_required(_data['user']['account_name'])
+
                     if _data['user']['status'] == 'show':
                         contacts = self.get_contacts(_data['user']['account_name'])
                         if contacts:
@@ -151,6 +154,7 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                             self.user = _data['user']['account_name']
                             self.connections[self.transport]['username'] = self.user
                             self.users[_data['user']['account_name']] = self.connections[self.transport]
+                            self.set_user_online(_data['user']['account_name'])
 
                         resp_msg = self.jim.probe(self.user)
                         self.users[_data['user']['account_name']]['transport'].write(self._dict_to_bytes(resp_msg))

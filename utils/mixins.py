@@ -74,3 +74,12 @@ class DbInterfaceMixin:
 
     def get_client_messages(self, client_username):
         return self._cm.get_client_messages(client_username)
+
+    def set_user_offline(self, client_username):
+        return self._cm.set_user_offline(client_username)
+
+    def set_user_online(self, client_username):
+        return self._cm.set_user_online(client_username)
+
+    def get_user_status(self, client_username):
+        return self._cm.get_user_status(client_username)

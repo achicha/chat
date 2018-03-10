@@ -126,3 +126,31 @@ class ClientMessages:
             return self.dal.session.query(Messages)\
                 .filter(Messages.client_id == client.id).all()
         return 'Client {} does not exists'.format(client_username)
+
+    def set_user_online(self, client_username):
+        """
+         Set status to online
+        :param client_username:
+        :return:
+        """
+        client = self.get_client_by_username(client_username)
+        if client:
+            client.online_status = True
+            self.dal.session.commit()
+        return 'Client {} does not exists'.format(client_username)
+
+    def set_user_offline(self, client_username):
+        """
+         Set status to offline
+        :param client_username:
+        :return:
+        """
+        client = self.get_client_by_username(client_username)
+        if client:
+            client.online_status = False
+            self.dal.session.commit()
+        return 'Client {} does not exists'.format(client_username)
+
+    def get_user_status(self, client_username):
+        client = self.get_client_by_username(client_username)
+        return client.online_status
