@@ -49,7 +49,6 @@ class ConsoleClientApp:
         try:
             task = asyncio.ensure_future(_client.get_from_console())  # create Task from coroutine
             tasks.append(task)
-
             loop.run_until_complete(task)
 
         except KeyboardInterrupt:

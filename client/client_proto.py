@@ -67,14 +67,13 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                         # self.output(msg, response=True)
 
                     if msg['response'] == 402:
-                        print('11111response 402. wrong login/password')
-                        #self.loop.stop()
                         self.conn_is_open = False
-                        print('now close')
-                        self.loop.stop()
-                        self.loop.close()
+                        for task in self.tasks:
+                            task.cancel()
+
+                        #self.loop.stop()
+                        # todo хз как убить задачу
                         print('closed')
-                        print(self.tasks)
 
                 except Exception as e:
                     print(e)
