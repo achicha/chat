@@ -41,14 +41,13 @@ class ContactsWindow(QtWidgets.QMainWindow):
     def __init__(self, client_instance, user_name=None, parent=None):
         super().__init__(parent)
         self.client_instance = client_instance
-        self.is_auth = False
+        self.username = user_name
+        self.chat_ins = None
 
         self.ui = contacts_ui_class()
         self.ui.setupUi(self)
         self.ui.actionExit.triggered.connect(self.actionExit)
 
-        self.chat_ins = None
-        self.username = user_name
         self.after_start()
 
     def keyPressEvent(self, event):
@@ -62,7 +61,7 @@ class ContactsWindow(QtWidgets.QMainWindow):
 
     def after_start(self):
         """do appropriate things after starting the App"""
-        #self.update_contacts(self.username)  # update list
+        self.update_contacts(self.username)  # update list
 
     def update_contacts(self, client_username):
         """обновление контакт листа"""
@@ -81,20 +80,22 @@ class ContactsWindow(QtWidgets.QMainWindow):
                 self.ui.new_contact_name.clear()
             else:
                 print(_resp)
+        else:
+            QtWidgets.QMessageBox.warning(self, 'Error', 'wrong Name')
 
     def on_delete_contact_btn_pressed(self):
         try:
             selected_contact = self.ui.all_contacts.currentItem().text()
+            _resp = self.client_instance.del_contact(self.username, selected_contact)
+
+            if not _resp:
+                # контакт успешно удален
+                self.update_contacts(self.username)
+            else:
+                print(_resp)
+
         except AttributeError:
-            print('wrong contact')
-
-        _resp = self.client_instance.del_contact(self.username, selected_contact)
-
-        if not _resp:
-            # контакт успешно удален
-            self.update_contacts(self.username)
-        else:
-            print(_resp)
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Please pick the contact')
 
     def on_all_contacts_itemDoubleClicked(self):
         chat_wnd = ChatWindow(self)
@@ -155,9 +156,7 @@ class ChatWindow(QtWidgets.QMainWindow):
         msg = self.ui.send_text.text()
 
         if msg:
-            #print('from: {}, to: {}, Msg: {}'.format(self.username, self.contact_username, msg))
-            self.client_instance.send(to_user=self.contact_username, content=msg)
-            #self.client_instance.add_client_message(self.username, self.contact_username, msg)   # add msg to DB
+            self.client_instance.send_msg(to_user=self.contact_username, content=msg)
             time.sleep(0.1)
             self.update_chat()
             self.ui.send_text.clear()

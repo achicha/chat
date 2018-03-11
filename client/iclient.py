@@ -86,18 +86,21 @@ class GuiClientApp:
         login_wnd = LoginWindow(auth_ins=auth_)
 
         if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
-            login_wnd.close()
-
             # Each client will create a new protocol instance
-            client_ = ChatClientProtocol(self.db_path, loop,
+            client_ = ChatClientProtocol(db_path=self.db_path,
+                                         loop=loop,
                                          username=login_wnd.username,
                                          password=login_wnd.password)
 
             # create Contacts window
-            wnd = ContactsWindow(client_instance=client_)
+            wnd = ContactsWindow(client_instance=client_, user_name=login_wnd.username)
             client_.gui_instance = wnd  # reference from protocol to GUI, for msg update
 
             with loop:
+                # cleaning old instances
+                del auth_
+                del login_wnd
+
                 # connect to our server
                 coro = loop.create_connection(lambda: client_, self.args["addr"], self.args["port"])
                 server = loop.run_until_complete(coro)
@@ -111,6 +114,7 @@ class GuiClientApp:
                     loop.run_forever()
                 except KeyboardInterrupt:
                     pass
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Client settings")

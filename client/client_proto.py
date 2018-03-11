@@ -39,6 +39,7 @@ class ClientAuth(ConvertMixin, DbInterfaceMixin):
         else:
             return False
 
+
 class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
     def __init__(self, db_path, loop, tasks=None, username=None, password=None, gui_instance=None, **kwargs):
         super().__init__(db_path)
@@ -124,6 +125,17 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         if request:
             msg = self._dict_to_bytes(request)
             self.transport.write(msg)
+
+    def send_msg(self, to_user, content):
+        """
+        send msg request to user from contact's list
+        :param to_user: receiver
+        :param content: text msg
+        :return:
+        """
+        if to_user and content:
+            request = self.jim.message(self.user, to_user, content)
+            self.transport.write(self._dict_to_bytes(request))
 
     async def get_from_console(self):
         """
