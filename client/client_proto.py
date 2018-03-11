@@ -1,10 +1,40 @@
 import asyncio
+import hashlib
+import binascii
 from sys import stdout
-
-import sys
 
 from client.client_messages import JimClientMessage
 from utils.mixins import ConvertMixin, DbInterfaceMixin
+
+
+class ClientAuth(ConvertMixin, DbInterfaceMixin):
+    def __init__(self, db_path, username=None, password=None):
+        super().__init__(db_path)
+        self.username = username
+        self.password = password
+
+    def authenticate(self):
+        # check user in DB
+        usr = self.get_client_by_username(self.username)
+        dk = hashlib.pbkdf2_hmac('sha256', self.password.encode('utf-8'),
+                                 'salt'.encode('utf-8'), 100000)
+        hashed_password = binascii.hexlify(dk)
+
+        if usr:
+            # existing user
+            if hashed_password == usr.password:
+                # add client's history row
+                self.add_client_history(self.username)
+                return True
+            else:
+                return False
+        else:
+            # new user
+            print('new user')
+            self.add_client(self.username, hashed_password)
+            # add client's history row
+            self.add_client_history(self.username)
+            return True
 
 
 class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
@@ -54,9 +84,7 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         :param data: json-like dict in bytes
         :return:
         """
-        print(data)
         msg = self._bytes_to_dict(data)
-        print(msg)
         if msg:
             try:
                 if msg['action'] == 'msg':

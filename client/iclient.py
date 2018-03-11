@@ -9,7 +9,7 @@ from PyQt5 import Qt
 #from PyQt5.QtCore import QEventLoop
 from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
 
-from client.client_proto import ChatClientProtocol
+from client.client_proto import ChatClientProtocol, ClientAuth
 from client.ui.windows import LoginWindow, ContactsWindow
 from client.client_config import DB_PATH, PORT
 
@@ -27,16 +27,26 @@ class ConsoleClientApp:
         for signame in ('SIGINT', 'SIGTERM'):
             loop.add_signal_handler(getattr(signal, signame), loop.stop)
 
-        # ask about login/password
-        usr = input('username: ')
-        passwrd = input('password: ')
-        tasks = []
+        # authentication process
+        auth = ClientAuth(db_path=self.db_path)
+        while True:
+            usr = self.args["user"] or input('username: ')
+            passwrd = self.args["password"] or input('password: ')
+            auth.username = usr
+            auth.password = passwrd
+            is_auth = auth.authenticate()
+            if is_auth:
+                break
+            else:
+                print('wrong username/password')
 
+        # create client
+        tasks = []
         _client = ChatClientProtocol(db_path=self.db_path,
                                      loop=loop,
                                      tasks=tasks,
-                                     username=usr or self.args["user"],
-                                     password=passwrd or self.args["password"])
+                                     username=usr,
+                                     password=passwrd)
         coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
         transport, protocol = loop.run_until_complete(coro)
 

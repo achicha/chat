@@ -6,13 +6,6 @@ from server.server_messages import JimServerMessage
 from utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
-class AuthServer(ConvertMixin, DbInterfaceMixin):
-    def __init__(self, db_path, username, password):
-        super().__init__(db_path)
-        self.username = username
-        self.password = password
-
-
 class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
     """ A Server Protocol listening for subscriber messages """
 
@@ -108,7 +101,7 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         """
         try:
             usr = data['user']['account_name']
-        except:
+        except Exception:
             usr = data['from']
         self._login_required(usr)
 
@@ -135,7 +128,7 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         """
         try:
             usr = data['user']['account_name']
-        except:
+        except Exception:
             usr = data['from']
         self._login_required(usr)
 
@@ -199,10 +192,6 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                     else:
                         resp_msg = self.jim.response(code=402, error='wrong login/password')
                         self.transport.write(self._dict_to_bytes(resp_msg))
-
-                elif _data['action'] == 'quit':
-                    print('disconnect')
-                    # todo quit
 
             except Exception as e:
                 resp_msg = self.jim.response(code=500, error=e)
