@@ -8,10 +8,11 @@ from client.ui.chat_ui import Ui_ChatMainWindow as chat_ui_class
 
 
 class LoginWindow(QtWidgets.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, auth_ins=None, parent=None):
         super().__init__(parent)
         self.username = None
         self.password = None
+        self.auth_instance = auth_ins
 
         self.ui = login_ui_class()
         self.ui.setupUi(self)
@@ -22,11 +23,17 @@ class LoginWindow(QtWidgets.QDialog):
         """
         self.username = self.ui.username_text.text()
         self.password = self.ui.password_text.text()
-        if self.username and self.password:
-            # тут можно сделать проверку на логин\пароль
+
+        self.auth_instance.username = self.username
+        self.auth_instance.password = self.password
+
+        is_auth = self.auth_instance.authenticate()
+        if is_auth:
             self.accept()
             print('{} logged in'.format(self.username))
         else:
+            self.ui.username_text.clear()
+            self.ui.password_text.clear()
             QtWidgets.QMessageBox.warning(self, 'Error', 'Bad user or password')
 
 

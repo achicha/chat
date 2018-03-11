@@ -15,27 +15,29 @@ class ClientAuth(ConvertMixin, DbInterfaceMixin):
 
     def authenticate(self):
         # check user in DB
-        usr = self.get_client_by_username(self.username)
-        dk = hashlib.pbkdf2_hmac('sha256', self.password.encode('utf-8'),
-                                 'salt'.encode('utf-8'), 100000)
-        hashed_password = binascii.hexlify(dk)
+        if self.username and self.password:
+            usr = self.get_client_by_username(self.username)
+            dk = hashlib.pbkdf2_hmac('sha256', self.password.encode('utf-8'),
+                                     'salt'.encode('utf-8'), 100000)
+            hashed_password = binascii.hexlify(dk)
 
-        if usr:
-            # existing user
-            if hashed_password == usr.password:
+            if usr:
+                # existing user
+                if hashed_password == usr.password:
+                    # add client's history row
+                    self.add_client_history(self.username)
+                    return True
+                else:
+                    return False
+            else:
+                # new user
+                print('new user')
+                self.add_client(self.username, hashed_password)
                 # add client's history row
                 self.add_client_history(self.username)
                 return True
-            else:
-                return False
         else:
-            # new user
-            print('new user')
-            self.add_client(self.username, hashed_password)
-            # add client's history row
-            self.add_client_history(self.username)
-            return True
-
+            return False
 
 class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
     def __init__(self, db_path, loop, tasks=None, username=None, password=None, gui_instance=None, **kwargs):

@@ -72,26 +72,29 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
 
     def authenticate(self, username, password):
         # check user in DB
-        usr = self.get_client_by_username(username)
-        dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'),
-                                 'salt'.encode('utf-8'), 100000)
-        hashed_password = binascii.hexlify(dk)
+        if username and password:
+            usr = self.get_client_by_username(username)
+            dk = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'),
+                                     'salt'.encode('utf-8'), 100000)
+            hashed_password = binascii.hexlify(dk)
 
-        if usr:
-            # existing user
-            if hashed_password == usr.password:
+            if usr:
+                # existing user
+                if hashed_password == usr.password:
+                    # add client's history row
+                    self.add_client_history(username)
+                    return True
+                else:
+                    return False
+            else:
+                # new user
+                print('new user')
+                self.add_client(username, hashed_password)
                 # add client's history row
                 self.add_client_history(username)
                 return True
-            else:
-                return False
         else:
-            # new user
-            print('new user')
-            self.add_client(username, hashed_password)
-            # add client's history row
-            self.add_client_history(username)
-            return True
+            return False
 
     def action_list(self, data):
         """

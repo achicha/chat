@@ -5,7 +5,7 @@ import signal
 import sys
 
 import time
-from PyQt5 import Qt
+from PyQt5 import Qt, QtWidgets
 #from PyQt5.QtCore import QEventLoop
 from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
 
@@ -23,6 +23,7 @@ class ConsoleClientApp:
         self.ins = None
 
     def main(self):
+        # create event loop
         loop = asyncio.get_event_loop()
         for signame in ('SIGINT', 'SIGTERM'):
             loop.add_signal_handler(getattr(signal, signame), loop.stop)
@@ -40,19 +41,19 @@ class ConsoleClientApp:
             else:
                 print('wrong username/password')
 
-        # create client
+        # Each client will create a new protocol instance
         tasks = []
-        _client = ChatClientProtocol(db_path=self.db_path,
+        client_ = ChatClientProtocol(db_path=self.db_path,
                                      loop=loop,
                                      tasks=tasks,
                                      username=usr,
                                      password=passwrd)
-        coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
+        coro = loop.create_connection(lambda: client_, self.args["addr"], self.args["port"])
         transport, protocol = loop.run_until_complete(coro)
 
         # Serve requests until Ctrl+C
         try:
-            task = asyncio.ensure_future(_client.get_from_console())  # create Task from coroutine
+            task = asyncio.ensure_future(client_.get_from_console())  # create Task from coroutine
             tasks.append(task)
             loop.run_until_complete(task)
 
@@ -75,58 +76,41 @@ class GuiClientApp:
 
     def main(self):
 
-        # event loop
+        # create event loop
         app = Qt.QApplication(sys.argv)
         loop = QEventLoop(app)
         asyncio.set_event_loop(loop)  # NEW must set the event loop
 
-        # Each client will create a new protocol instance
-        auth = []
-        _client = ChatClientProtocol(self.db_path, loop, authenticated=auth)
+        # authentication process
+        auth_ = ClientAuth(db_path=self.db_path)
+        login_wnd = LoginWindow(auth_ins=auth_)
 
-        # create Contacts window
-        wnd = ContactsWindow(client_instance=_client)
-        _client.gui_instance = wnd  # reference from protocol to GUI, for msg update
+        if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
+            login_wnd.close()
 
-        # login into account
-        login_wnd = LoginWindow()
-        #login_wnd.show()
-        #if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
-        #wnd.show()
-        login_wnd.exec_()
+            # Each client will create a new protocol instance
+            client_ = ChatClientProtocol(self.db_path, loop,
+                                         username=login_wnd.username,
+                                         password=login_wnd.password)
 
-        with loop:
-            # connect to our server
-            coro = loop.create_connection(lambda: _client, self.args["addr"], self.args["port"])
-            server = loop.run_until_complete(coro)
+            # create Contacts window
+            wnd = ContactsWindow(client_instance=client_)
+            client_.gui_instance = wnd  # reference from protocol to GUI, for msg update
 
-            # auth
-            _client.user = login_wnd.username
-            _client.password = login_wnd.password
-            _client.send_auth(_client.user, login_wnd.password)
-            time.sleep(3)
+            with loop:
+                # connect to our server
+                coro = loop.create_connection(lambda: client_, self.args["addr"], self.args["port"])
+                server = loop.run_until_complete(coro)
 
-            from sys import stdout
-            stdout.write(str(wnd.is_auth))
-            stdout.write(str(_client.gui_instance.is_auth))
-            stdout.write(str(_client.user))
+                # start GUI client
+                wnd.show()
+                client_.get_from_gui()  # asyncio.ensure_future(client_.get_from_gui(loop))
 
-            # start GUI client
-            wnd.show()
-            _client.get_from_gui()  #asyncio.ensure_future(_client.get_from_gui(loop))
-
-            # Serve requests until Ctrl+C
-            try:
-                loop.run_forever()
-            except KeyboardInterrupt:
-                pass
-
-            #loop.run_until_complete(server.wait_closed())
-
-
-            # else:
-            #     print('wrong users credentials')
-
+                # Serve requests until Ctrl+C
+                try:
+                    loop.run_forever()
+                except KeyboardInterrupt:
+                    pass
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Client settings")
