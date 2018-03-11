@@ -13,6 +13,8 @@ from server.src.ui.windows import ServerMonitorWindow
 
 
 class ConsoleServerApp:
+    """Console server"""
+
     def __init__(self, parsed_args, db_path):
         self.args = parsed_args
         self.db_path = db_path
@@ -42,6 +44,8 @@ class ConsoleServerApp:
 
 
 class GuiServerApp:
+    """Gui server"""
+
     def __init__(self, parsed_args, db_path):
         self.args = parsed_args
         self.db_path = db_path
