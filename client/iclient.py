@@ -4,7 +4,6 @@ import asyncio
 import signal
 import sys
 
-import time
 from PyQt5 import Qt, QtWidgets
 #from PyQt5.QtCore import QEventLoop
 from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
@@ -48,8 +47,13 @@ class ConsoleClientApp:
                                      tasks=tasks,
                                      username=usr,
                                      password=passwrd)
-        coro = loop.create_connection(lambda: client_, self.args["addr"], self.args["port"])
-        transport, protocol = loop.run_until_complete(coro)
+        # connect to our server
+        try:
+            coro = loop.create_connection(lambda: client_, self.args["addr"], self.args["port"])
+            transport, protocol = loop.run_until_complete(coro)
+        except ConnectionRefusedError:
+            print('Error. wrong server')
+            exit(1)
 
         # Serve requests until Ctrl+C
         try:
@@ -102,8 +106,12 @@ class GuiClientApp:
                 del login_wnd
 
                 # connect to our server
-                coro = loop.create_connection(lambda: client_, self.args["addr"], self.args["port"])
-                server = loop.run_until_complete(coro)
+                try:
+                    coro = loop.create_connection(lambda: client_, self.args["addr"], self.args["port"])
+                    server = loop.run_until_complete(coro)
+                except ConnectionRefusedError:
+                    print('Error. wrong server')
+                    exit(1)
 
                 # start GUI client
                 wnd.show()
@@ -113,6 +121,8 @@ class GuiClientApp:
                 try:
                     loop.run_forever()
                 except KeyboardInterrupt:
+                    pass
+                except Exception:
                     pass
 
 

@@ -25,7 +25,7 @@ class ClientAuth(ConvertMixin, DbInterfaceMixin):
                 # existing user
                 if hashed_password == usr.password:
                     # add client's history row
-                    self.add_client_history(self.username)
+                    # self.add_client_history(self.username)
                     return True
                 else:
                     return False
@@ -34,7 +34,7 @@ class ClientAuth(ConvertMixin, DbInterfaceMixin):
                 print('new user')
                 self.add_client(self.username, hashed_password)
                 # add client's history row
-                self.add_client_history(self.username)
+                # self.add_client_history(self.username)
                 return True
         else:
             return False

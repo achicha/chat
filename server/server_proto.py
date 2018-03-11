@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 import binascii
+from functools import wraps
 
 from server.server_messages import JimServerMessage
 from utils.mixins import ConvertMixin, DbInterfaceMixin
@@ -42,33 +43,43 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             print('ConnectionResetError')
             print(self.connections)
             print(self.users)
-        else:
-            # remove closed connections
-            rm_con = []
-            for con in self.connections:
-                if con._closing:
-                    rm_con.append(con)
 
-            for i in rm_con:
-                del self.connections[i]
+        # remove closed connections
+        rm_con = []
+        for con in self.connections:
+            if con._closing:
+                rm_con.append(con)
 
-            # remove from users
-            rm_user = []
-            for k, v in self.users.items():
-                for con in rm_con:
-                    if v['transport'] == con:
-                        rm_user.append(k)
+        for i in rm_con:
+            del self.connections[i]
 
-            for u in rm_user:
-                del self.users[u]
-                self.set_user_offline(u)
-                print('{} disconnected'.format(u))
+        # remove from users
+        rm_user = []
+        for k, v in self.users.items():
+            for con in rm_con:
+                if v['transport'] == con:
+                    rm_user.append(k)
 
-    def _login_required(self, username):
-        """check user's credentials or add new user to DB"""
-        # add client's history row
-        # self.add_client_history(username)
-        print('Auth status:', self.get_user_status(username))
+        for u in rm_user:
+            del self.users[u]
+            self.set_user_offline(u)
+            print('{} disconnected'.format(u))
+
+    def _login_required(func):
+        """Login required decorator, which accepts only authorized clients"""
+
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            is_auth = self.get_user_status(self.user)
+            # print('is_auth status: {}'.format(is_auth))
+            if is_auth:
+                result = func(self, *args, **kwargs)
+                return result
+            else:
+                resp_msg = self.jim.response(code=501, error='login required')
+                self.users[self.user]['transport'].write(self._dict_to_bytes(resp_msg))
+
+        return wrapper
 
     def authenticate(self, username, password):
         # check user in DB
@@ -96,18 +107,13 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         else:
             return False
 
+    @_login_required
     def action_list(self, data):
         """
          Receive internal request to show/add/del contacts
         :param data: msg dict
         :return:
         """
-        try:
-            usr = data['user']['account_name']
-        except Exception:
-            usr = data['from']
-        self._login_required(usr)
-
         if data['user']['status'] == 'show':
             contacts = self.get_contacts(data['user']['account_name'])
             if contacts:
@@ -123,18 +129,13 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             if data['user']['contact']:
                 self.del_contact(data['user']['account_name'], data['user']['contact'])
 
+    @_login_required
     def action_msg(self, data):
         """
          Receive message from another user
         :param data: msg dict
         :return:
         """
-        try:
-            usr = data['user']['account_name']
-        except Exception:
-            usr = data['from']
-        self._login_required(usr)
-
         try:
             if data['from']:  # send msg to sender's chat
                 print(data)
@@ -164,9 +165,11 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         if _data:
             try:
                 if _data['action'] == 'msg':
+                    self.user = _data['from']
                     self.action_msg(_data)
 
                 elif _data['action'] == 'list':
+                    self.user = _data['user']['account_name']
                     self.action_list(_data)
 
                 elif _data['action'] == 'presence':  # received presence msg
