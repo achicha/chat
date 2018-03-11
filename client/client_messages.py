@@ -2,13 +2,14 @@ from datetime import datetime as dt
 
 
 class JimClientMessage:
-    """Формирование запроса клиента"""
+    """Client's requests protocol"""
     def auth(self, username, password):
         """
-        Сообщение для авторизации пользователя на сервере
+        Authorization message
+
         :param username:
         :param password:
-        :return:
+        :return: dict with data
         """
         data = {
             "action": "authenticate",
@@ -22,9 +23,10 @@ class JimClientMessage:
 
     def presence(self, sender, status="Yep, I am here!"):
         """
-        Сформировать ​​presence-сообщение присутствие.
-        Сервисное сообщение для извещения сервера о присутствии клиента​ ​ online;
-        :return: Словарь сообщения
+        Presence message, which notify server that client is online.
+        :param sender: username
+        :param status: some text
+        :return: dict with data
         """
         data = {
             "action": "presence",
@@ -39,8 +41,11 @@ class JimClientMessage:
 
     def quit(self, sender, status="disconnect"):
         """
-        Сформировать quit-сообщение. Клиент хочет отключится от сервера.
-        :return: Словарь сообщения
+        Quit message, which notify server that client want to disconnect
+
+        :param sender: username
+        :param status: some text
+        :return: dict with data
         """
         data = {
             "action": "quit",
@@ -55,8 +60,12 @@ class JimClientMessage:
 
     def list_(self, sender, status="show", person=''):
         """
-        Сформировать list-сообщение для запроса контактов.
-        :return: Словарь сообщения
+        List message, which can add/delete/show contacts from user's ContactList
+
+        :param sender: username
+        :param status: possible statuses are: show/add/del
+        :param person: user from contact list
+        :return: dict with data
         """
         data = {
             "action": "list",
@@ -73,12 +82,12 @@ class JimClientMessage:
 
     def message(self, sender, receiver='user1', text='some msg text'):
         """
-        client -> client message
-        ​простое​ ​ сообщение​ ​ пользователю​ ​ или​ ​ в ​ ​ чат;
+        Simple message between two client's (client -> client)
 
+        :param sender: username
         :param receiver: account name. message to
-        :param text: message text
-        :return: Словарь сообщения
+        :param text: message's text
+        :return: dict with data
         """
         data = {
             "action": "msg",

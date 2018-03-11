@@ -30,12 +30,12 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         self.transport = transport
 
     def eof_received(self):
+        """EOF(end-of-file)"""
         # print('EOF(end-of-file) received')
         self.transport.close()
 
     def connection_lost(self, exc):
-        """Transport Error or EOF(end-of-file), which
-        means the client is disconnected."""
+        """Transport Error , which means the client is disconnected."""
 
         if isinstance(exc, ConnectionResetError):
             #del self.connections[self.transport]

@@ -8,12 +8,16 @@ from utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ClientAuth(ConvertMixin, DbInterfaceMixin):
+    """Authentication server"""
+
     def __init__(self, db_path, username=None, password=None):
         super().__init__(db_path)
         self.username = username
         self.password = password
 
     def authenticate(self):
+        """authentication method, which verify user in DB"""
+
         # check user in DB
         if self.username and self.password:
             usr = self.get_client_by_username(self.username)

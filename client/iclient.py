@@ -87,7 +87,7 @@ class GuiClientApp:
 
         # authentication process
         auth_ = ClientAuth(db_path=self.db_path)
-        login_wnd = LoginWindow(auth_ins=auth_)
+        login_wnd = LoginWindow(auth_instance=auth_)
 
         if login_wnd.exec_() == QtWidgets.QDialog.Accepted:
             # Each client will create a new protocol instance
