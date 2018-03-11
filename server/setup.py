@@ -8,7 +8,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='my-gb-async-server',
+    name='gb-async-server',
     version='0.1',
     #packages=find_packages('secretdiary'),
     packages=find_packages(),
@@ -20,10 +20,10 @@ setup(
     author='achicha',
     keywords=['client', 'server', 'async'],
     classifiers=[],
-    install_requires=['PyQt5', 'quamash'],
+    install_requires=['PyQt5', 'quamash', 'sqlalchemy'],
     entry_points={
         'console_scripts': [
-            'client = iclient.main',
+            'server = src.main:main',
         ]
     },
 )
