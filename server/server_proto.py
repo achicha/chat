@@ -6,6 +6,13 @@ from server.server_messages import JimServerMessage
 from utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
+class AuthServer(ConvertMixin, DbInterfaceMixin):
+    def __init__(self, db_path, username, password):
+        super().__init__(db_path)
+        self.username = username
+        self.password = password
+
+
 class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
     """ A Server Protocol listening for subscriber messages """
 
@@ -37,9 +44,9 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
         means the client is disconnected."""
 
         if isinstance(exc, ConnectionResetError):
-            del self.connections[self.transport]
-            del self.users[self.connections[self.transport]['username']]
-
+            #del self.connections[self.transport]
+            #del self.users[self.connections[self.transport]['username']]
+            print('ConnectionResetError')
             print(self.connections)
             print(self.users)
         else:
@@ -145,6 +152,8 @@ class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                 try:
                     self.users[data['to']]['transport'].write(self._dict_to_bytes(data))
                 except KeyError:
+                    # resp_msg = self.jim.response(code=404, error='user is not connected')
+                    # self.users[data['from']]['transport'].write(self._dict_to_bytes(resp_msg))
                     print('{} is not connected yet'.format(data['to']))
 
         except Exception as e:

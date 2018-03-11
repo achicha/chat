@@ -8,7 +8,7 @@ from utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
-    def __init__(self, db_path, loop, tasks=[], username=None, password=None, gui_instance=None, **kwargs):
+    def __init__(self, db_path, loop, tasks=None, username=None, password=None, gui_instance=None, **kwargs):
         super().__init__(db_path)
         self.user = username
         self.password = password
@@ -48,21 +48,23 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
             self.loop.stop()
             self.loop.close()
 
-        # print('delete')
-
     def data_received(self, data):
         """
         Receive data from server and send output message to console/gui
         :param data: json-like dict in bytes
         :return:
         """
+        print(data)
         msg = self._bytes_to_dict(data)
+        print(msg)
         if msg:
             try:
                 if msg['action'] == 'msg':
                     self.output(msg)
+
                 elif msg['action'] == 'list':
                     self.output(msg['contact_list'])
+
                 elif msg['action'] == 'probe':
                     if self.gui_instance:
                         self.gui_instance.is_auth = True
@@ -70,18 +72,18 @@ class ChatClientProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):
                     self.transport.write(self._dict_to_bytes(
                         self.jim.presence(self.user,
                                           status="Connected from {0}:{1}".format(*self.sockname))))
-            except KeyError:
-                try:
-                    if msg['response'] == 200:
+
+                elif msg['action'] == 'response':
+                    if msg['code'] == 200:
                         pass
-                        #print('response 200')
-                        # self.output(msg, response=True)
 
-                    if msg['response'] == 402:
+                    elif msg['code'] == 402:
                         self.connection_lost(asyncio.CancelledError)
+                    else:
+                        self.output(msg)
 
-                except Exception as e:
-                    print(e)
+            except Exception as e:
+                print(e)
 
     def send(self, request):
         """

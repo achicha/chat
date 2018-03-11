@@ -12,7 +12,8 @@ class JimServerMessage:
         :return: response dictionary
         """
         _data = {
-            'response': code,
+            'action': 'response',
+            'code': code,
             'time': dt.now().timestamp(),
             'error': error
         }
