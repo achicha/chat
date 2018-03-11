@@ -1,8 +1,8 @@
 import json
 
-from server.server_config import ENCODING
-from server.database.controller import ClientMessages
-from server.database.models import CBase
+from client.src.client_config import ENCODING
+from client.src.database.controller import ClientMessages
+from client.src.database.models import CBase
 
 
 class ConvertMixin:

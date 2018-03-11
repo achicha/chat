@@ -7,9 +7,9 @@ from PyQt5 import Qt
 #from PyQt5.QtCore import QEventLoop
 from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
 
-from server.server_config import DB_PATH, PORT
-from server.server_proto import ChatServerProtocol
-from server.ui.windows import ServerMonitorWindow
+from server.src.server_config import DB_PATH, PORT
+from server.src.utils.server_proto import ChatServerProtocol
+from server.src.ui.windows import ServerMonitorWindow
 
 
 class ConsoleServerApp:
