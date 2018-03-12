@@ -16,8 +16,11 @@ Documentation:
 How to generate docs:
 -------
 
-* sphinx-apidoc -f ../../chat -o /some_dir/docs/source
-* make html
+.. code::
+
+   pip install sphinx
+   sphinx-apidoc -f ../../chat -o /some_dir/docs/source
+   make html
 
 Links:
 -------
