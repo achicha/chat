@@ -3,21 +3,22 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-aiogbchat's documentation!
-=====================================
+Client
+===================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Client:
 
    aiogbclient
    aiogbclient.database
    aiogbclient.ui
    aiogbclient.utils
 
+Server
+===================
+
 .. toctree::
    :maxdepth: 2
-   :caption: Server:
 
    aiogbserver
    aiogbserver.database
