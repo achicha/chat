@@ -1,9 +1,12 @@
-import os
+# cross platform home folder
+from pathlib import Path
+home = str(Path.home())
 
+# constants
+PORT = 14908
+ENCODING = 'utf-8'
 
-PORT = 14908         # port. ибо достали зомби процессы :)
-ENCODING = 'utf-8'   # Кодировка
-
+# Database
 DB_PROTOCOL = 'sqlite:///'
-DB_NAME = '/database/client_contacts.db'
-DB_PATH = DB_PROTOCOL + os.path.dirname(os.path.abspath(__file__)) + DB_NAME
+DB_NAME = '/client_contacts.db'
+DB_PATH = DB_PROTOCOL + home + DB_NAME
