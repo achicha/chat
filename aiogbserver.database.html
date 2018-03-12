@@ -1,0 +1,369 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>aiogbserver.database package &#8212; aiogbchat 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="aiogbserver-database-package">
+<h1>aiogbserver.database package<a class="headerlink" href="#aiogbserver-database-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-aiogbserver.database.controller">
+<span id="aiogbserver-database-controller-module"></span><h2>aiogbserver.database.controller module<a class="headerlink" href="#module-aiogbserver.database.controller" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aiogbserver.database.controller.ClientMessages">
+<em class="property">class </em><code class="descclassname">aiogbserver.database.controller.</code><code class="descname">ClientMessages</code><span class="sig-paren">(</span><em>conn_string</em>, <em>base</em>, <em>echo</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.add_client">
+<code class="descname">add_client</code><span class="sig-paren">(</span><em>username</em>, <em>password</em>, <em>info=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.add_client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.add_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Добавление клиента</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.add_client_history">
+<code class="descname">add_client_history</code><span class="sig-paren">(</span><em>client_username</em>, <em>ip_addr='8.8.8.8'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.add_client_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.add_client_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>добавление истории клиента</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.add_client_message">
+<code class="descname">add_client_message</code><span class="sig-paren">(</span><em>client_username</em>, <em>contact_username</em>, <em>text_msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.add_client_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.add_client_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>бекап сообщения клиента</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.add_contact">
+<code class="descname">add_contact</code><span class="sig-paren">(</span><em>client_username</em>, <em>contact_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.add_contact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.add_contact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Добавление контакта</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.del_contact">
+<code class="descname">del_contact</code><span class="sig-paren">(</span><em>client_username</em>, <em>contact_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.del_contact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.del_contact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Добавление контакта</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.get_all_clients">
+<code class="descname">get_all_clients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.get_all_clients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.get_all_clients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Получение списка всех зарегистрированных пользователей</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.get_client_by_username">
+<code class="descname">get_client_by_username</code><span class="sig-paren">(</span><em>username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.get_client_by_username"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.get_client_by_username" title="Permalink to this definition">¶</a></dt>
+<dd><p>Получение клиента по имени</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.get_client_history">
+<code class="descname">get_client_history</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.get_client_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.get_client_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>получение истории входов клиента на сервер</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.get_client_messages">
+<code class="descname">get_client_messages</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.get_client_messages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.get_client_messages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Получение всех сообщений от клиента</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.get_contacts">
+<code class="descname">get_contacts</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.get_contacts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.get_contacts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Получение контактов клиента</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.get_user_status">
+<code class="descname">get_user_status</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.get_user_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.get_user_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.set_user_offline">
+<code class="descname">set_user_offline</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.set_user_offline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.set_user_offline" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Set status to offline</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>client_username</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbserver.database.controller.ClientMessages.set_user_online">
+<code class="descname">set_user_online</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/controller.html#ClientMessages.set_user_online"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.controller.ClientMessages.set_user_online" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Set status to online</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>client_username</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aiogbserver.database.db_connector">
+<span id="aiogbserver-database-db-connector-module"></span><h2>aiogbserver.database.db_connector module<a class="headerlink" href="#module-aiogbserver.database.db_connector" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aiogbserver.database.db_connector.DataAccessLayer">
+<em class="property">class </em><code class="descclassname">aiogbserver.database.db_connector.</code><code class="descname">DataAccessLayer</code><span class="sig-paren">(</span><em>conn_string</em>, <em>base</em>, <em>echo=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/db_connector.html#DataAccessLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.db_connector.DataAccessLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>access to DB fabric</p>
+<dl class="method">
+<dt id="aiogbserver.database.db_connector.DataAccessLayer.connect">
+<code class="descname">connect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/db_connector.html#DataAccessLayer.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.db_connector.DataAccessLayer.connect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aiogbserver.database.models">
+<span id="aiogbserver-database-models-module"></span><h2>aiogbserver.database.models module<a class="headerlink" href="#module-aiogbserver.database.models" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aiogbserver.database.models.Client">
+<em class="property">class </em><code class="descclassname">aiogbserver.database.models.</code><code class="descname">Client</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/models.html#Client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.models.Client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Таблица с клиентами</p>
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Client.id">
+<code class="descname">id</code><a class="headerlink" href="#aiogbserver.database.models.Client.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Client.info">
+<code class="descname">info</code><a class="headerlink" href="#aiogbserver.database.models.Client.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Client.online_status">
+<code class="descname">online_status</code><a class="headerlink" href="#aiogbserver.database.models.Client.online_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Client.password">
+<code class="descname">password</code><a class="headerlink" href="#aiogbserver.database.models.Client.password" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Client.username">
+<code class="descname">username</code><a class="headerlink" href="#aiogbserver.database.models.Client.username" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="aiogbserver.database.models.Contacts">
+<em class="property">class </em><code class="descclassname">aiogbserver.database.models.</code><code class="descname">Contacts</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/models.html#Contacts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.models.Contacts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Таблица с контактами(друзьями) клиента</p>
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Contacts.client">
+<code class="descname">client</code><a class="headerlink" href="#aiogbserver.database.models.Contacts.client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Contacts.client_id">
+<code class="descname">client_id</code><a class="headerlink" href="#aiogbserver.database.models.Contacts.client_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Contacts.contact">
+<code class="descname">contact</code><a class="headerlink" href="#aiogbserver.database.models.Contacts.contact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Contacts.contact_id">
+<code class="descname">contact_id</code><a class="headerlink" href="#aiogbserver.database.models.Contacts.contact_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Contacts.id">
+<code class="descname">id</code><a class="headerlink" href="#aiogbserver.database.models.Contacts.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="aiogbserver.database.models.History">
+<em class="property">class </em><code class="descclassname">aiogbserver.database.models.</code><code class="descname">History</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/models.html#History"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.models.History" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>Таблица с историей входов клиентов</p>
+<dl class="attribute">
+<dt id="aiogbserver.database.models.History.client">
+<code class="descname">client</code><a class="headerlink" href="#aiogbserver.database.models.History.client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.History.client_id">
+<code class="descname">client_id</code><a class="headerlink" href="#aiogbserver.database.models.History.client_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.History.id">
+<code class="descname">id</code><a class="headerlink" href="#aiogbserver.database.models.History.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.History.ip_addr">
+<code class="descname">ip_addr</code><a class="headerlink" href="#aiogbserver.database.models.History.ip_addr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.History.time">
+<code class="descname">time</code><a class="headerlink" href="#aiogbserver.database.models.History.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="aiogbserver.database.models.Messages">
+<em class="property">class </em><code class="descclassname">aiogbserver.database.models.</code><code class="descname">Messages</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbserver/database/models.html#Messages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbserver.database.models.Messages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Base</span></code></p>
+<p>История сообщений клиента</p>
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Messages.client">
+<code class="descname">client</code><a class="headerlink" href="#aiogbserver.database.models.Messages.client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Messages.client_id">
+<code class="descname">client_id</code><a class="headerlink" href="#aiogbserver.database.models.Messages.client_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Messages.contact">
+<code class="descname">contact</code><a class="headerlink" href="#aiogbserver.database.models.Messages.contact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Messages.contact_id">
+<code class="descname">contact_id</code><a class="headerlink" href="#aiogbserver.database.models.Messages.contact_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Messages.id">
+<code class="descname">id</code><a class="headerlink" href="#aiogbserver.database.models.Messages.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Messages.message">
+<code class="descname">message</code><a class="headerlink" href="#aiogbserver.database.models.Messages.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aiogbserver.database.models.Messages.time">
+<code class="descname">time</code><a class="headerlink" href="#aiogbserver.database.models.Messages.time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aiogbserver.database">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aiogbserver.database" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">aiogbserver.database package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-aiogbserver.database.controller">aiogbserver.database.controller module</a></li>
+<li><a class="reference internal" href="#module-aiogbserver.database.db_connector">aiogbserver.database.db_connector module</a></li>
+<li><a class="reference internal" href="#module-aiogbserver.database.models">aiogbserver.database.models module</a></li>
+<li><a class="reference internal" href="#module-aiogbserver.database">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/aiogbserver.database.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, achicha.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/aiogbserver.database.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

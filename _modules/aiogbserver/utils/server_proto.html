@@ -1,0 +1,285 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>aiogbserver.utils.server_proto &#8212; aiogbchat 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for aiogbserver.utils.server_proto</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">binascii</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
+
+<span class="kn">from</span> <span class="nn">aiogbserver.utils.server_messages</span> <span class="k">import</span> <span class="n">JimServerMessage</span>
+<span class="kn">from</span> <span class="nn">aiogbserver.utils.mixins</span> <span class="k">import</span> <span class="n">ConvertMixin</span><span class="p">,</span> <span class="n">DbInterfaceMixin</span>
+
+
+<div class="viewcode-block" id="ChatServerProtocol"><a class="viewcode-back" href="../../../aiogbserver.utils.html#aiogbserver.utils.server_proto.ChatServerProtocol">[docs]</a><span class="k">class</span> <span class="nc">ChatServerProtocol</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Protocol</span><span class="p">,</span> <span class="n">ConvertMixin</span><span class="p">,</span> <span class="n">DbInterfaceMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; A Server Protocol listening for subscriber messages &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_path</span><span class="p">,</span> <span class="n">connections</span><span class="p">,</span> <span class="n">users</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="n">connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">users</span> <span class="o">=</span> <span class="n">users</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jim</span> <span class="o">=</span> <span class="n">JimServerMessage</span><span class="p">()</span>
+
+        <span class="c1"># useful temp variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transport</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ChatServerProtocol.connection_made"><a class="viewcode-back" href="../../../aiogbserver.utils.html#aiogbserver.utils.server_proto.ChatServerProtocol.connection_made">[docs]</a>    <span class="k">def</span> <span class="nf">connection_made</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transport</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Called when connection is initiated &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="n">transport</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;peername&#39;</span><span class="p">:</span> <span class="n">transport</span><span class="o">.</span><span class="n">get_extra_info</span><span class="p">(</span><span class="s1">&#39;peername&#39;</span><span class="p">),</span>
+                                       <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;transport&#39;</span><span class="p">:</span> <span class="n">transport</span>
+                                       <span class="p">}</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transport</span> <span class="o">=</span> <span class="n">transport</span>
+
+<div class="viewcode-block" id="ChatServerProtocol.eof_received"><a class="viewcode-back" href="../../../aiogbserver.utils.html#aiogbserver.utils.server_proto.ChatServerProtocol.eof_received">[docs]</a>    <span class="k">def</span> <span class="nf">eof_received</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;EOF(end-of-file)&quot;&quot;&quot;</span>
+        <span class="c1"># print(&#39;EOF(end-of-file) received&#39;)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ChatServerProtocol.connection_lost"><a class="viewcode-back" href="../../../aiogbserver.utils.html#aiogbserver.utils.server_proto.ChatServerProtocol.connection_lost">[docs]</a>    <span class="k">def</span> <span class="nf">connection_lost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transport Error , which means the client is disconnected.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="ne">ConnectionResetError</span><span class="p">):</span>
+            <span class="c1">#del self.connections[self.transport]</span>
+            <span class="c1">#del self.users[self.connections[self.transport][&#39;username&#39;]]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ConnectionResetError&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">)</span>
+
+        <span class="c1"># remove closed connections</span>
+        <span class="n">rm_con</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">con</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">con</span><span class="o">.</span><span class="n">_closing</span><span class="p">:</span>
+                <span class="n">rm_con</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rm_con</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="c1"># remove from users</span>
+        <span class="n">rm_user</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">con</span> <span class="ow">in</span> <span class="n">rm_con</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;transport&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">con</span><span class="p">:</span>
+                    <span class="n">rm_user</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">rm_user</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">u</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_user_offline</span><span class="p">(</span><span class="n">u</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> disconnected&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_login_required</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Login required decorator, which accepts only authorized clients&quot;&quot;&quot;</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">is_auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+            <span class="c1"># print(&#39;is_auth status: {}&#39;.format(is_auth))</span>
+            <span class="k">if</span> <span class="n">is_auth</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">resp_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jim</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">501</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s1">&#39;login required&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">][</span><span class="s1">&#39;transport&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">resp_msg</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+<div class="viewcode-block" id="ChatServerProtocol.authenticate"><a class="viewcode-back" href="../../../aiogbserver.utils.html#aiogbserver.utils.server_proto.ChatServerProtocol.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="c1"># check user in DB</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">and</span> <span class="n">password</span><span class="p">:</span>
+            <span class="n">usr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+            <span class="n">dk</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">pbkdf2_hmac</span><span class="p">(</span><span class="s1">&#39;sha256&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span>
+                                     <span class="s1">&#39;salt&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="mi">100000</span><span class="p">)</span>
+            <span class="n">hashed_password</span> <span class="o">=</span> <span class="n">binascii</span><span class="o">.</span><span class="n">hexlify</span><span class="p">(</span><span class="n">dk</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">usr</span><span class="p">:</span>
+                <span class="c1"># existing user</span>
+                <span class="k">if</span> <span class="n">hashed_password</span> <span class="o">==</span> <span class="n">usr</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+                    <span class="c1"># add client&#39;s history row</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_client_history</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># new user</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;new user&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_client</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">hashed_password</span><span class="p">)</span>
+                <span class="c1"># add client&#39;s history row</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_client_history</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="ChatServerProtocol.action_list"><a class="viewcode-back" href="../../../aiogbserver.utils.html#aiogbserver.utils.server_proto.ChatServerProtocol.action_list">[docs]</a>    <span class="nd">@_login_required</span>
+    <span class="k">def</span> <span class="nf">action_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">         Receive internal request to show/add/del contacts</span>
+<span class="sd">        :param data: msg dict</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;show&#39;</span><span class="p">:</span>
+            <span class="n">contacts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_contacts</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">contacts</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="s1">&#39;contact_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">contact</span><span class="o">.</span><span class="n">contact</span><span class="o">.</span><span class="n">username</span> <span class="k">for</span> <span class="n">contact</span> <span class="ow">in</span> <span class="n">contacts</span><span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">]][</span><span class="s1">&#39;transport&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;contact&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_contact</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;contact&#39;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;del&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;contact&#39;</span><span class="p">]:</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">del_contact</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;contact&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="ChatServerProtocol.action_msg"><a class="viewcode-back" href="../../../aiogbserver.utils.html#aiogbserver.utils.server_proto.ChatServerProtocol.action_msg">[docs]</a>    <span class="nd">@_login_required</span>
+    <span class="k">def</span> <span class="nf">action_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">         Receive message from another user</span>
+<span class="sd">        :param data: msg dict</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">]:</span>  <span class="c1"># send msg to sender&#39;s chat</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+                <span class="c1"># save msg to DB history messages</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cm</span><span class="o">.</span><span class="n">add_client_message</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;to&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">])</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">]][</span><span class="s1">&#39;transport&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;to&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;to&#39;</span><span class="p">]:</span>  <span class="c1"># send msg to receiver&#39;s chat</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;to&#39;</span><span class="p">]][</span><span class="s1">&#39;transport&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="c1"># resp_msg = self.jim.response(code=404, error=&#39;user is not connected&#39;)</span>
+                    <span class="c1"># self.users[data[&#39;from&#39;]][&#39;transport&#39;].write(self._dict_to_bytes(resp_msg))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not connected yet&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;to&#39;</span><span class="p">]))</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">resp_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jim</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">resp_msg</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ChatServerProtocol.data_received"><a class="viewcode-back" href="../../../aiogbserver.utils.html#aiogbserver.utils.server_proto.ChatServerProtocol.data_received">[docs]</a>    <span class="k">def</span> <span class="nf">data_received</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The protocol expects a json message in bytes&quot;&quot;&quot;</span>
+
+        <span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bytes_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_data</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;msg&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">action_msg</span><span class="p">(</span><span class="n">_data</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">(</span><span class="n">_data</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;presence&#39;</span><span class="p">:</span>  <span class="c1"># received presence msg</span>
+                    <span class="k">if</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">]:</span>
+
+                        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;status&#39;</span><span class="p">])</span>
+                        <span class="n">resp_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jim</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">resp_msg</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">resp_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jim</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s1">&#39;wrong presence msg&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">resp_msg</span><span class="p">))</span>
+
+                <span class="k">elif</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;authenticate&#39;</span><span class="p">:</span>
+                    <span class="c1"># todo complete this</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">],</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;password&#39;</span><span class="p">]):</span>
+
+                        <span class="c1"># add new user to temp variables</span>
+                        <span class="k">if</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">]</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="p">][</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="p">]</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">set_user_online</span><span class="p">(</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">])</span>
+
+                        <span class="n">resp_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jim</span><span class="o">.</span><span class="n">probe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">[</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;account_name&#39;</span><span class="p">]][</span><span class="s1">&#39;transport&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">resp_msg</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">resp_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jim</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">402</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s1">&#39;wrong login/password&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">resp_msg</span><span class="p">))</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">resp_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jim</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">resp_msg</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resp_msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">jim</span><span class="o">.</span><span class="n">response</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s1">&#39;You sent a message without a name or data&#39;</span><span class="p">)</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict_to_bytes</span><span class="p">(</span><span class="n">resp_msg</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, achicha.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

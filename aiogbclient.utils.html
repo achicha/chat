@@ -1,0 +1,419 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>aiogbclient.utils package &#8212; aiogbchat 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="aiogbserver package" href="aiogbserver.html" />
+    <link rel="prev" title="aiogbclient.ui package" href="aiogbclient.ui.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="aiogbclient-utils-package">
+<h1>aiogbclient.utils package<a class="headerlink" href="#aiogbclient-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-aiogbclient.utils.client_messages">
+<span id="aiogbclient-utils-client-messages-module"></span><h2>aiogbclient.utils.client_messages module<a class="headerlink" href="#module-aiogbclient.utils.client_messages" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aiogbclient.utils.client_messages.JimClientMessage">
+<em class="property">class </em><code class="descclassname">aiogbclient.utils.client_messages.</code><code class="descname">JimClientMessage</code><a class="reference internal" href="_modules/aiogbclient/utils/client_messages.html#JimClientMessage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_messages.JimClientMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Client’s requests protocol</p>
+<dl class="method">
+<dt id="aiogbclient.utils.client_messages.JimClientMessage.auth">
+<code class="descname">auth</code><span class="sig-paren">(</span><em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_messages.html#JimClientMessage.auth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_messages.JimClientMessage.auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authorization message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> – </li>
+<li><strong>password</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_messages.JimClientMessage.list_">
+<code class="descname">list_</code><span class="sig-paren">(</span><em>sender</em>, <em>status='show'</em>, <em>person=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_messages.html#JimClientMessage.list_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_messages.JimClientMessage.list_" title="Permalink to this definition">¶</a></dt>
+<dd><p>List message, which can add/delete/show contacts from user’s ContactList</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sender</strong> – username</li>
+<li><strong>status</strong> – possible statuses are: show/add/del</li>
+<li><strong>person</strong> – user from contact list</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_messages.JimClientMessage.message">
+<code class="descname">message</code><span class="sig-paren">(</span><em>sender</em>, <em>receiver='user1'</em>, <em>text='some msg text'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_messages.html#JimClientMessage.message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_messages.JimClientMessage.message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple message between two client’s (client -&gt; client)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sender</strong> – username</li>
+<li><strong>receiver</strong> – account name. message to</li>
+<li><strong>text</strong> – message’s text</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_messages.JimClientMessage.presence">
+<code class="descname">presence</code><span class="sig-paren">(</span><em>sender</em>, <em>status='Yep</em>, <em>I am here!'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_messages.html#JimClientMessage.presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_messages.JimClientMessage.presence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Presence message, which notify server that client is online.
+:param sender: username
+:param status: some text
+:return: dict with data</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_messages.JimClientMessage.quit">
+<code class="descname">quit</code><span class="sig-paren">(</span><em>sender</em>, <em>status='disconnect'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_messages.html#JimClientMessage.quit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_messages.JimClientMessage.quit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quit message, which notify server that client want to disconnect</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sender</strong> – username</li>
+<li><strong>status</strong> – some text</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dict with data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aiogbclient.utils.client_proto">
+<span id="aiogbclient-utils-client-proto-module"></span><h2>aiogbclient.utils.client_proto module<a class="headerlink" href="#module-aiogbclient.utils.client_proto" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol">
+<em class="property">class </em><code class="descclassname">aiogbclient.utils.client_proto.</code><code class="descname">ChatClientProtocol</code><span class="sig-paren">(</span><em>db_path</em>, <em>loop</em>, <em>tasks=None</em>, <em>username=None</em>, <em>password=None</em>, <em>gui_instance=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">asyncio.protocols.Protocol</span></code>, <a class="reference internal" href="#aiogbclient.utils.mixins.ConvertMixin" title="aiogbclient.utils.mixins.ConvertMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">aiogbclient.utils.mixins.ConvertMixin</span></code></a>, <a class="reference internal" href="#aiogbclient.utils.mixins.DbInterfaceMixin" title="aiogbclient.utils.mixins.DbInterfaceMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">aiogbclient.utils.mixins.DbInterfaceMixin</span></code></a></p>
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.connection_lost">
+<code class="descname">connection_lost</code><span class="sig-paren">(</span><em>exc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.connection_lost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.connection_lost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect from the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.connection_made">
+<code class="descname">connection_made</code><span class="sig-paren">(</span><em>transport</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.connection_made"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.connection_made" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when connection is initiated</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.data_received">
+<code class="descname">data_received</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.data_received"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.data_received" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receive data from server and send output message to console/gui
+:param data: json-like dict in bytes
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.get_from_console">
+<code class="descname">get_from_console</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.get_from_console"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.get_from_console" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recieve messages from Console
+:param loop:
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.get_from_gui">
+<code class="descname">get_from_gui</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.get_from_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.get_from_gui" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.output_to_console">
+<code class="descname">output_to_console</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.output_to_console"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.output_to_console" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>print output data to terminal</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> – msg dictionary</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.output_to_gui">
+<code class="descname">output_to_gui</code><span class="sig-paren">(</span><em>msg</em>, <em>response=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.output_to_gui"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.output_to_gui" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>send update signal to GUI client</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>response</strong> – raw response from server {‘response’:200}</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.send">
+<code class="descname">send</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.send" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Send json-like message</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> – dict message</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.send_auth">
+<code class="descname">send_auth</code><span class="sig-paren">(</span><em>user</em>, <em>password</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.send_auth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.send_auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>send authenticate message to the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ChatClientProtocol.send_msg">
+<code class="descname">send_msg</code><span class="sig-paren">(</span><em>to_user</em>, <em>content</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ChatClientProtocol.send_msg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ChatClientProtocol.send_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>send msg request to user from contact’s list
+:param to_user: receiver
+:param content: text msg
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="aiogbclient.utils.client_proto.ClientAuth">
+<em class="property">class </em><code class="descclassname">aiogbclient.utils.client_proto.</code><code class="descname">ClientAuth</code><span class="sig-paren">(</span><em>db_path</em>, <em>username=None</em>, <em>password=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ClientAuth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ClientAuth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aiogbclient.utils.mixins.ConvertMixin" title="aiogbclient.utils.mixins.ConvertMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">aiogbclient.utils.mixins.ConvertMixin</span></code></a>, <a class="reference internal" href="#aiogbclient.utils.mixins.DbInterfaceMixin" title="aiogbclient.utils.mixins.DbInterfaceMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">aiogbclient.utils.mixins.DbInterfaceMixin</span></code></a></p>
+<p>Authentication server</p>
+<dl class="method">
+<dt id="aiogbclient.utils.client_proto.ClientAuth.authenticate">
+<code class="descname">authenticate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/client_proto.html#ClientAuth.authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.client_proto.ClientAuth.authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>authentication method, which verify user in DB</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="aiogbclient-utils-log-config-module">
+<h2>aiogbclient.utils.log_config module<a class="headerlink" href="#aiogbclient-utils-log-config-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-aiogbclient.utils.mixins">
+<span id="aiogbclient-utils-mixins-module"></span><h2>aiogbclient.utils.mixins module<a class="headerlink" href="#module-aiogbclient.utils.mixins" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aiogbclient.utils.mixins.ConvertMixin">
+<em class="property">class </em><code class="descclassname">aiogbclient.utils.mixins.</code><code class="descname">ConvertMixin</code><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#ConvertMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.ConvertMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin">
+<em class="property">class </em><code class="descclassname">aiogbclient.utils.mixins.</code><code class="descname">DbInterfaceMixin</code><span class="sig-paren">(</span><em>db_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.add_client">
+<code class="descname">add_client</code><span class="sig-paren">(</span><em>username</em>, <em>info=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.add_client"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.add_client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.add_client_history">
+<code class="descname">add_client_history</code><span class="sig-paren">(</span><em>client_username</em>, <em>ip_addr='8.8.8.8'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.add_client_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.add_client_history" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.add_client_message">
+<code class="descname">add_client_message</code><span class="sig-paren">(</span><em>client_username</em>, <em>contact_username</em>, <em>text_msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.add_client_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.add_client_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.add_contact">
+<code class="descname">add_contact</code><span class="sig-paren">(</span><em>client_username</em>, <em>contact_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.add_contact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.add_contact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.del_contact">
+<code class="descname">del_contact</code><span class="sig-paren">(</span><em>client_username</em>, <em>contact_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.del_contact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.del_contact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.get_all_clients">
+<code class="descname">get_all_clients</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.get_all_clients"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.get_all_clients" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.get_client_by_username">
+<code class="descname">get_client_by_username</code><span class="sig-paren">(</span><em>username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.get_client_by_username"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.get_client_by_username" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.get_client_history">
+<code class="descname">get_client_history</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.get_client_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.get_client_history" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.get_client_messages">
+<code class="descname">get_client_messages</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.get_client_messages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.get_client_messages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.get_contacts">
+<code class="descname">get_contacts</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.get_contacts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.get_contacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.get_user_status">
+<code class="descname">get_user_status</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.get_user_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.get_user_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.set_user_offline">
+<code class="descname">set_user_offline</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.set_user_offline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.set_user_offline" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aiogbclient.utils.mixins.DbInterfaceMixin.set_user_online">
+<code class="descname">set_user_online</code><span class="sig-paren">(</span><em>client_username</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aiogbclient/utils/mixins.html#DbInterfaceMixin.set_user_online"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aiogbclient.utils.mixins.DbInterfaceMixin.set_user_online" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aiogbclient.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aiogbclient.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">aiogbclient.utils package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-aiogbclient.utils.client_messages">aiogbclient.utils.client_messages module</a></li>
+<li><a class="reference internal" href="#module-aiogbclient.utils.client_proto">aiogbclient.utils.client_proto module</a></li>
+<li><a class="reference internal" href="#aiogbclient-utils-log-config-module">aiogbclient.utils.log_config module</a></li>
+<li><a class="reference internal" href="#module-aiogbclient.utils.mixins">aiogbclient.utils.mixins module</a></li>
+<li><a class="reference internal" href="#module-aiogbclient.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="aiogbclient.ui.html" title="previous chapter">aiogbclient.ui package</a></li>
+      <li>Next: <a href="aiogbserver.html" title="next chapter">aiogbserver package</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/aiogbclient.utils.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, achicha.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/aiogbclient.utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

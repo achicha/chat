@@ -1,0 +1,233 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>aiogbclient.database.controller &#8212; aiogbchat 0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for aiogbclient.database.controller</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dt</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="k">import</span> <span class="n">IntegrityError</span>
+
+<span class="kn">from</span> <span class="nn">aiogbclient.database.db_connector</span> <span class="k">import</span> <span class="n">DataAccessLayer</span>
+<span class="kn">from</span> <span class="nn">aiogbclient.database.models</span> <span class="k">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">History</span><span class="p">,</span> <span class="n">Messages</span><span class="p">,</span> <span class="n">Contacts</span>
+
+
+<div class="viewcode-block" id="ClientMessages"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages">[docs]</a><span class="k">class</span> <span class="nc">ClientMessages</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn_string</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">echo</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;создать подключение к БД&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dal</span> <span class="o">=</span> <span class="n">DataAccessLayer</span><span class="p">(</span><span class="n">conn_string</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">echo</span><span class="o">=</span><span class="n">echo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;закрыть сессию перед выходом&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ClientMessages.add_client"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.add_client">[docs]</a>    <span class="k">def</span> <span class="nf">add_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Добавление клиента&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">username</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;Username </span><span class="si">{}</span><span class="s1"> already exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_user</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_user</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Client added: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_user</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ClientMessages.get_client_by_username"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.get_client_by_username">[docs]</a>    <span class="k">def</span> <span class="nf">get_client_by_username</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Получение клиента по имени&quot;&quot;&quot;</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Client</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Client</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">client</span>
+
+<div class="viewcode-block" id="ClientMessages.add_contact"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.add_contact">[docs]</a>    <span class="k">def</span> <span class="nf">add_contact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">,</span> <span class="n">contact_username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Добавление контакта&quot;&quot;&quot;</span>
+        <span class="n">contact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">contact_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">contact</span><span class="p">:</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+                <span class="n">new_contact</span> <span class="o">=</span> <span class="n">Contacts</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">contact_id</span><span class="o">=</span><span class="n">contact</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_contact</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Contact added: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_contact</span><span class="p">))</span>
+                <span class="k">except</span> <span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;IntegrityError error: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="s1">&#39;Contact </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">contact_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.del_contact"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.del_contact">[docs]</a>    <span class="k">def</span> <span class="nf">del_contact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">,</span> <span class="n">contact_username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Добавление контакта&quot;&quot;&quot;</span>
+        <span class="n">contact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">contact_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">contact</span><span class="p">:</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+                <span class="n">remove_contact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Contacts</span><span class="p">)</span> \
+                    <span class="o">.</span><span class="n">filter</span><span class="p">((</span><span class="n">Contacts</span><span class="o">.</span><span class="n">client_id</span> <span class="o">==</span> <span class="n">client</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                            <span class="o">&amp;</span> <span class="p">(</span><span class="n">Contacts</span><span class="o">.</span><span class="n">contact_id</span> <span class="o">==</span> <span class="n">contact</span><span class="o">.</span><span class="n">id</span><span class="p">))</span> \
+                    <span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">remove_contact</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Contact removed: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">remove_contact</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span></div>
+            <span class="k">return</span> <span class="s1">&#39;Contact </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">contact_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.get_contacts"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.get_contacts">[docs]</a>    <span class="k">def</span> <span class="nf">get_contacts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Получение контактов клиента&quot;&quot;&quot;</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Contacts</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Client</span><span class="p">,</span> <span class="n">Contacts</span><span class="o">.</span><span class="n">client_id</span> <span class="o">==</span> <span class="n">Client</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>\
+                    <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Client</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">client_username</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.get_all_clients"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.get_all_clients">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_clients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Получение списка всех зарегистрированных пользователей&quot;&quot;&quot;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Client</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ClientMessages.add_client_history"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.add_client_history">[docs]</a>    <span class="k">def</span> <span class="nf">add_client_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">,</span> <span class="n">ip_addr</span><span class="o">=</span><span class="s1">&#39;8.8.8.8&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;добавление истории клиента&quot;&quot;&quot;</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+            <span class="n">new_history</span> <span class="o">=</span> <span class="n">History</span><span class="p">(</span><span class="n">ip_addr</span><span class="o">=</span><span class="n">ip_addr</span><span class="p">,</span> <span class="n">client_id</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_history</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;History added: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_history</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;IntegrityError error: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+</div>
+        <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.get_client_history"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.get_client_history">[docs]</a>    <span class="k">def</span> <span class="nf">get_client_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;получение истории входов клиента на сервер&quot;&quot;&quot;</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">History</span><span class="p">)</span>\
+                <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">History</span><span class="o">.</span><span class="n">client_id</span> <span class="o">==</span> <span class="n">client</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.add_client_message"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.add_client_message">[docs]</a>    <span class="k">def</span> <span class="nf">add_client_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">,</span> <span class="n">contact_username</span><span class="p">,</span> <span class="n">text_msg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;бекап сообщения клиента&quot;&quot;&quot;</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="n">contact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">contact_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span> <span class="ow">and</span> <span class="n">contact</span><span class="p">:</span>
+            <span class="n">new_msg</span> <span class="o">=</span> <span class="n">Messages</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">contact_id</span><span class="o">=</span><span class="n">contact</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">text_msg</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_msg</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;New message added: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_msg</span><span class="p">))</span>
+            <span class="k">except</span> <span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;IntegrityError error: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.get_client_messages"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.get_client_messages">[docs]</a>    <span class="k">def</span> <span class="nf">get_client_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Получение всех сообщений от клиента&quot;&quot;&quot;</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Messages</span><span class="p">)</span>\
+                <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Messages</span><span class="o">.</span><span class="n">client_id</span> <span class="o">==</span> <span class="n">client</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.set_user_online"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.set_user_online">[docs]</a>    <span class="k">def</span> <span class="nf">set_user_online</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">         Set status to online</span>
+<span class="sd">        :param client_username:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">online_status</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.set_user_offline"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.set_user_offline">[docs]</a>    <span class="k">def</span> <span class="nf">set_user_offline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">         Set status to offline</span>
+<span class="sd">        :param client_username:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span><span class="p">:</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">online_status</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dal</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="s1">&#39;Client </span><span class="si">{}</span><span class="s1"> does not exists&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClientMessages.get_user_status"><a class="viewcode-back" href="../../../aiogbclient.database.html#aiogbclient.database.controller.ClientMessages.get_user_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_username</span><span class="p">):</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_client_by_username</span><span class="p">(</span><span class="n">client_username</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">online_status</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, achicha.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
