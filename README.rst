@@ -7,13 +7,21 @@ Quick start
 .. code::
 
    pip install aiogbchat --upgrade  # install
-   python -m aiogbserver.main     # run server
-   python -m aiogbclient.main     # run client
+   python -m aiogbserver  -- nogui  # run server in console mode
+   python -m aiogbclient            # run client in GUI mode
 
 Documentation:
 -------
 `<https://achicha.github.io/chat/>`_
 
+
+Known issues:
+-------
+
+* client disconnected with some logged issues (DB/asyncio). its not critical :)
+* windows: client doesn't work in console mode.
+* windows8 and higher: only works with pyqt5==5.9.2
+* tests
 
 Helpful:
 -------
