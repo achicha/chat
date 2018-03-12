@@ -3,8 +3,8 @@ import hashlib
 import binascii
 from functools import wraps
 
-from server.src.utils.server_messages import JimServerMessage
-from server.src.utils.mixins import ConvertMixin, DbInterfaceMixin
+from aiogbserver.utils.server_messages import JimServerMessage
+from aiogbserver.utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ChatServerProtocol(asyncio.Protocol, ConvertMixin, DbInterfaceMixin):

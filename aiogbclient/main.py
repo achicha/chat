@@ -8,9 +8,9 @@ from PyQt5 import Qt, QtWidgets
 #from PyQt5.QtCore import QEventLoop
 from quamash import QEventLoop  # asyncio works fine with pyqt5 loop
 
-from client.src.utils.client_proto import ChatClientProtocol, ClientAuth
-from client.src.ui.windows import LoginWindow, ContactsWindow
-from client.src.client_config import DB_PATH, PORT
+from aiogbclient.utils.client_proto import ChatClientProtocol, ClientAuth
+from aiogbclient.ui.windows import LoginWindow, ContactsWindow
+from aiogbclient.client_config import DB_PATH, PORT
 
 
 class ConsoleClientApp:

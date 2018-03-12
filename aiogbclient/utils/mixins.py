@@ -1,8 +1,8 @@
 import json
 
-from client.src.client_config import ENCODING
-from client.src.database.controller import ClientMessages
-from client.src.database.models import CBase
+from aiogbclient.client_config import ENCODING
+from aiogbclient.database.controller import ClientMessages
+from aiogbclient.database.models import CBase
 
 
 class ConvertMixin:

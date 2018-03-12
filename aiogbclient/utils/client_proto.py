@@ -3,8 +3,8 @@ import hashlib
 import binascii
 from sys import stdout
 
-from client.src.utils.client_messages import JimClientMessage
-from client.src.utils.mixins import ConvertMixin, DbInterfaceMixin
+from aiogbclient.utils.client_messages import JimClientMessage
+from aiogbclient.utils.mixins import ConvertMixin, DbInterfaceMixin
 
 
 class ClientAuth(ConvertMixin, DbInterfaceMixin):

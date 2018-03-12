@@ -1,7 +1,7 @@
 from pytest import raises
 import socket
 import json
-from utils import dict_to_bytes, bytes_to_dict, get_msg, send_msg
+from aiogbserver.utils.mixins import dict_to_bytes, bytes_to_dict, get_msg, send_msg
 
 
 # МОДУЛЬНОЕ ТЕСТИРОВАНИЕ
