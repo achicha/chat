@@ -126,7 +126,7 @@ class GuiClientApp:
                     pass
 
 
-if __name__ == '__main__':
+def parse_and_run():
     def parse_args():
         parser = argparse.ArgumentParser(description="Client settings")
         parser.add_argument("--user", default="user1", type=str)
@@ -135,7 +135,6 @@ if __name__ == '__main__':
         parser.add_argument("--port", default=PORT, type=int)
         parser.add_argument('--nogui', action='store_true')
         return vars(parser.parse_args())
-
 
     args = parse_args()
 
@@ -147,3 +146,7 @@ if __name__ == '__main__':
         # start GUI client
         a = GuiClientApp(args, DB_PATH)
         a.main()
+
+
+if __name__ == '__main__':
+    parse_and_run()

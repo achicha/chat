@@ -82,14 +82,13 @@ class GuiServerApp:
             loop.close()
 
 
-if __name__ == '__main__':
+def parse_and_run():
     def parse_args():
         parser = argparse.ArgumentParser(description="Server settings")
         parser.add_argument("--addr", default="127.0.0.1", type=str)
         parser.add_argument("--port", default=PORT, type=int)
         parser.add_argument('--nogui', action='store_true')
         return vars(parser.parse_args())
-
 
     args = parse_args()
 
@@ -101,3 +100,7 @@ if __name__ == '__main__':
         # start GUI server
         a = GuiServerApp(args, DB_PATH)
         a.main()
+
+
+if __name__ == '__main__':
+    parse_and_run()
