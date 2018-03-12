@@ -29,7 +29,7 @@ Helpful:
 .. code::
 
    pip install twine
-   python3​ ​ setup.py bdist_wheel # generate wheel
+   python3 setup.py bdist_wheel # generate wheel
    twine upload dist/*
 
 Links:

@@ -20,7 +20,7 @@ coverage/
 env/
 venv/
 
-docs/build/
 dist/
 *.egg-info/
 .pypirc
+build/
