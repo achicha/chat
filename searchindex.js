@@ -1,0 +1,1 @@
+Search.setIndex({docnames:["includeme","index"],envversion:53,filenames:["includeme.rst","index.rst"],objects:{},objnames:{},objtypes:{},terms:{async:0,chat:0,client:0,index:1,modul:1,page:1,python:0,search:1,server:0,written:0},titles:["&lt;no title&gt;","Welcome to aiogbchat\u2019s documentation!"],titleterms:{aiogbchat:1,document:1,indic:1,tabl:1,welcom:1}})

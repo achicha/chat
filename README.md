@@ -1,1 +1,0 @@
-Async Client-Server chat written in python.
