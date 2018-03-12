@@ -6,7 +6,9 @@ Quick start
 -------
 .. code::
 
-   pip install aiogbchat
+   pip install aiogbchat --upgrade  # install
+   python -m aiogbserver.main     # run server
+   python -m aiogbclient.main     # run client
 
 Documentation:
 -------

@@ -29,7 +29,7 @@ class PostInstallCommand(install):
 
 setup(
     name='aiogbchat',
-    version='0.1',
+    version='0.2',
     packages=find_packages(),
     include_package_data=True,
     license='GNU General Public License v3.0',
