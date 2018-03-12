@@ -28,7 +28,7 @@ class PostInstallCommand(install):
 
 
 setup(
-    name='gb-async-server',
+    name='gbasyncserver',
     version='0.1',
     #packages=find_packages('secretdiary'),
     packages=find_packages(),
@@ -36,7 +36,7 @@ setup(
     license='GNU General Public License v3.0',
     description='Async Server',
     long_description=README,
-    url='https://github.com/achicha/chat/tree/master/client',
+    url='https://github.com/achicha/chat/tree/master/server',
     author='achicha',
     keywords=['server', 'asyncio', 'Qt'],
     classifiers=[],

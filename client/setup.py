@@ -27,7 +27,7 @@ class PostInstallCommand(install):
         install.run(self)
 
 setup(
-    name='gb-async-client',
+    name='gbasyncclient',
     version='0.1',
     #packages=find_packages('secretdiary'),
     packages=find_packages(),
