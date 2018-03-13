@@ -18,7 +18,7 @@ Documentation:
 Known issues:
 -------
 
-* client disconnected with some logged issues (DB/asyncio). its not critical :)
+* some clients share(?) the DB session, and disconnected simultaneously, if one of them is out.
 * windows: client doesn't work in console mode.
 * windows8 and higher: only works with pyqt5==5.9.2
 * tests
