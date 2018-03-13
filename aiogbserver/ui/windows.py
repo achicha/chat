@@ -16,6 +16,14 @@ class ServerMonitorWindow(QMainWindow):
         self.ui.refresh_action.triggered.connect(self.refresh_action)
         self.after_start()
 
+    def closeEvent(self, event):
+        """
+        Close DB connection before exit (close window)
+        :param event:
+        :return:
+        """
+        self.server_instance._cm.dal.session.close()  # close DB connection
+
     def after_start(self):
         """do appropriate things after starting the App"""
 

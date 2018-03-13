@@ -67,6 +67,14 @@ class ContactsWindow(QtWidgets.QMainWindow):
 
         self.after_start()
 
+    def closeEvent(self, event):
+        """
+        Close DB connection before exit (close window)
+        :param event:
+        :return:
+        """
+        self.client_instance._cm.dal.session.close()  # close DB connection
+
     def keyPressEvent(self, event):
         """Events after pressing key buttons"""
 

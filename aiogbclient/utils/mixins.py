@@ -3,6 +3,7 @@ import json
 from aiogbclient.client_config import ENCODING
 from aiogbclient.database.controller import ClientMessages
 from aiogbclient.database.models import CBase
+from sqlalchemy.ext.declarative import declarative_base
 
 
 class ConvertMixin:
@@ -43,7 +44,8 @@ class ConvertMixin:
 
 class DbInterfaceMixin:
     def __init__(self, db_path):
-        self._cm = ClientMessages(db_path, CBase, echo=False)  # init DB
+        _base = declarative_base()
+        self._cm = ClientMessages(db_path, _base, echo=False)  # init DB
 
     def add_client(self, username, info=None):
         return self._cm.add_client(username, info)

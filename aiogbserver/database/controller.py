@@ -12,10 +12,6 @@ class ClientMessages:
         self.dal.connect()
         self.dal.session = self.dal.Session()
 
-    def __del__(self):
-        """закрыть сессию перед выходом"""
-        self.dal.session.close()
-
     def add_client(self, username, password, info=None):
         """Добавление клиента"""
         if self.get_client_by_username(username):
